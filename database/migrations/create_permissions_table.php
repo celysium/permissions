@@ -32,6 +32,8 @@ class CreatePermissionsTable extends Migration
 
             $table->unsignedInteger($roleForeignKey);
             $table->foreign($roleForeignKey)->references('id')->on($roleTableName)->onUpdate('cascade');
+
+            $table->unique([$permissionForeignKey, $roleForeignKey]);
         });
 
         Schema::create(config('acl.database.permission_users.table_name'), function (Blueprint $table) use ($permissionTableName, $permissionForeignKey) {
