@@ -17,7 +17,7 @@ return new class extends Migration
 
         Schema::create($roleTableName, function (Blueprint $table) {
             $table->id();
-            $table->char('name')->unique();
+            $table->string('name')->unique();
             $table->string('title');
         });
 
