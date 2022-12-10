@@ -24,6 +24,11 @@ return [
             'user_table_name' => 'users',
             'user_foreign_key' => 'user_id',
         ],
+    ],
+    'models' => [
+        'role' => \Celysium\ACL\Models\Role::class,
+        'permission' => \Celysium\ACL\Models\Permission::class,
+        'user' => \App\Models\User::class
     ]
 
 ];
