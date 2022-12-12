@@ -9,6 +9,11 @@ class Permission extends Model
     protected $fillable = ['name', 'title'];
 
     public $timestamps = false;
+    
+    public function getTable()
+    {
+        return config('acl.models.permission');
+    }
 
     public function roles()
     {
