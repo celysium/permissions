@@ -2,6 +2,8 @@
 
 namespace Celysium\ACL;
 
+use App\acl\acl\src\AclEventServiceProvider;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class ACLServiceProvider extends ServiceProvider
@@ -24,5 +26,7 @@ class ACLServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../config/acl.php', 'acl'
         );
+
+        $this->app->register(AclEventServiceProvider::class);
     }
 }
