@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'cache' => env('ACL_CACHE_DRIVER', 'database'),
+    'cache_driver' => env('ACL_CACHE_DRIVER', 'database'),
 
     'user' => [
         'model' => \App\Models\User::class,
