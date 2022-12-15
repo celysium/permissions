@@ -1,9 +1,8 @@
 <?php
 
 return [
-    'cache' => [
-        'storage' => env('ACL_CACHE_DRIVER', 'database')
-    ],
+    'cache' => env('ACL_CACHE_DRIVER', 'database'),
+
     'user' => [
         'model' => \App\Models\User::class,
         'table' => 'users',
