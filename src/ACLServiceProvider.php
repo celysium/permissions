@@ -2,8 +2,6 @@
 
 namespace Celysium\ACL;
 
-use App\acl\acl\src\AclEventServiceProvider;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class ACLServiceProvider extends ServiceProvider
