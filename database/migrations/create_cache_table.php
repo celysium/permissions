@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
 
-    const ARTISAN_CACHE_TABLE_CREATION = 'php artisan cache:table';
+    const COMMAND_CACHE_TABLE = 'cache:table';
 
     /**
      * Run the migrations.
@@ -19,7 +19,7 @@ return new class extends Migration {
             !Schema::hasTable('cache')
             && config('acl.cache.storage') === 'database'
         ) {
-            Artisan::call(static::ARTISAN_CACHE_TABLE_CREATION);
+            Artisan::call(static::COMMAND_CACHE_TABLE);
         }
     }
 
