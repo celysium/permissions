@@ -13,27 +13,24 @@ return new class extends Migration
      */
     public function up()
     {
-        $roleTableName = config('acl.database.role.table_name');
-
-        Schema::create($roleTableName, function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('title');
         });
 
-        Schema::create(config('acl.database.role_users.table_name'), function (Blueprint $table) use ($roleTableName) {
+        Schema::create('role_users', function (Blueprint $table) {
 
-            $roleForeignKey = config('acl.database.role.foreign_key');
-            $roleUsersUserTableNames = config('acl.database.role_users.user_table_name');
-            $roleUsersUserForeignKey = config('acl.database.role_users.user_foreign_key');
+            $userTable = config('acl.user.table');
+            $userForeignKey = config('acl.user.foreign_key');
 
-            $table->unsignedBigInteger($roleForeignKey);
-            $table->foreign($roleForeignKey)->references('id')->on($roleTableName)->onUpdate('cascade');
+            $table->unsignedBigInteger('role_id');
+            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');
 
-            $table->unsignedBigInteger($roleUsersUserForeignKey);
-            $table->foreign($roleUsersUserForeignKey)->references('id')->on($roleUsersUserTableNames)->onUpdate('cascade');
+            $table->unsignedBigInteger($userForeignKey);
+            $table->foreign($userForeignKey)->references('id')->on($userTable)->onUpdate('cascade');
 
-            $table->unique([$roleUsersUserForeignKey, $roleForeignKey]);
+            $table->unique([$userForeignKey, 'role_id']);
         });
     }
 
@@ -44,6 +41,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists(config('acl.database.role.table_name'));
+        Schema::dropIfExists('role_users');
+        Schema::dropIfExists('roles');
     }
 };
