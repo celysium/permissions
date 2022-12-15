@@ -53,7 +53,7 @@ class Role extends Model
 
     public function refreshCacheOnDelete(): void
     {
-        Cache::store(config('acl.cache.storage'))
+        Cache::store(config('acl.storage'))
             ->forget($this->name);
     }
 }

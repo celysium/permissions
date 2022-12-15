@@ -3,7 +3,6 @@
 namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -19,11 +18,6 @@ class Permission extends Model
     protected $fillable = ['name', 'title'];
 
     public $timestamps = false;
-
-    public function getTable()
-    {
-        return config('acl.models.permission');
-    }
 
     public function roles(): BelongsToMany
     {
@@ -47,22 +41,9 @@ class Permission extends Model
 
     public function refreshCache(): void
     {
-        foreach ($this->roles as $role) {
-            Cache::store(config('acl.cache.storage'))
-                ->put($role->name, $this->name);
-        }
-    }
-
-    public function refreshCacheOnDelete(): void
-    {
         /** @var Role $role */
         foreach ($this->roles as $role) {
-            $rolePermissions = $role->permissions()
-                ->pluck('name')
-                ->toArray();
-
-            Cache::store(config('acl.cache.storage'))
-                ->put($role->name, $rolePermissions);
+            $role->refreshCache();
         }
     }
 }
