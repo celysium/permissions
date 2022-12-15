@@ -33,9 +33,9 @@ class Role extends Model
     {
         return $this->belongsToMany(
             config('acl.models.user'),
-            config('acl.database.role_users.foreign_key'),
+            'role_users',
             'permission_id',
-            config('acl.database.permission_users.user_foreign_key')
+            config('acl.user.foreign_key')
         );
     }
 }
