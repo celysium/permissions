@@ -1,6 +1,6 @@
 <?php
 
-namespace App\acl\acl\src\Observers;
+namespace Celysium\ACL\Observers;
 
 use Celysium\ACL\Models\Permission;
 use Illuminate\Support\Facades\Cache;
@@ -25,7 +25,7 @@ class PermissionObserver
                     ->toArray();
 
                 Cache::store(env('ACL_CACHE_DRIVER', 'database'))
-                    ->put($rolePermissions);
+                    ->put($role->name, $rolePermissions);
             }
         }
 
