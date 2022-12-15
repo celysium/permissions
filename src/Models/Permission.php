@@ -3,13 +3,18 @@
 namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property string $name
+ * @property string $title
+ */
 class Permission extends Model
 {
     protected $fillable = ['name', 'title'];
 
     public $timestamps = false;
-    
+
     public function getTable()
     {
         return config('acl.models.permission');
@@ -38,5 +43,26 @@ class Permission extends Model
             config('acl.database.role.foreign_key'),
             config('acl.database.permission_users.user_foreign_key')
         );
+    }
+
+    public function refreshCache(): void
+    {
+        foreach ($this->roles as $role) {
+            Cache::store(config('acl.cache.storage'))
+                ->put($role->name, $this->name);
+        }
+    }
+
+    public function refreshCacheOnDelete(): void
+    {
+        /** @var Role $role */
+        foreach ($this->roles as $role) {
+            $rolePermissions = $role->permissions()
+                ->pluck('name')
+                ->toArray();
+
+            Cache::store(config('acl.cache.storage'))
+                ->put($role->name, $rolePermissions);
+        }
     }
 }
