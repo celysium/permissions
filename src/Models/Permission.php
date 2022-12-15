@@ -38,4 +38,12 @@ class Permission extends Model
             config('acl.user.foreign_key')
         );
     }
+
+    public function refreshCache(): void
+    {
+        /** @var Role $role */
+        foreach ($this->roles as $role) {
+            $role->refreshCache();
+        }
+    }
 }

@@ -24,5 +24,7 @@ class ACLServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../config/acl.php', 'acl'
         );
+
+        $this->app->register(AclEventServiceProvider::class);
     }
 }

@@ -3,7 +3,9 @@
 namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 
 /**
@@ -19,7 +21,7 @@ class Role extends Model
 
     public $timestamps = false;
 
-    public function permissions()
+    public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
             Permission::class,
@@ -29,7 +31,7 @@ class Role extends Model
         );
     }
 
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(
             config('acl.models.user'),
@@ -37,5 +39,21 @@ class Role extends Model
             'permission_id',
             config('acl.user.foreign_key')
         );
+    }
+
+    public function refreshCache(): void
+    {
+        $permissions = $this->permissions()
+            ->pluck('name')
+            ->toArray();
+
+        Cache::store(config('acl.cache_driver'))
+            ->put($this->name, $permissions);
+    }
+
+    public function refreshCacheOnDelete(): void
+    {
+        Cache::store(config('acl.cache_driver'))
+            ->forget($this->name);
     }
 }
