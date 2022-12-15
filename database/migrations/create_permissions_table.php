@@ -13,42 +13,36 @@ class CreatePermissionsTable extends Migration
      */
     public function up()
     {
-        $permissionTableName = config('acl.database.permission.table_name');
-        $permissionForeignKey = config('acl.database.permission.foreign_key');
-
-        Schema::create($permissionTableName, function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('title');
         });
 
-        Schema::create(config('acl.database.permission_roles.table_name'), function (Blueprint $table) use ($permissionTableName, $permissionForeignKey) {
+        Schema::create('permission_roles', function (Blueprint $table) {
 
-            $roleTableName = config('acl.database.role.table_name');
-            $roleForeignKey = config('acl.database.role.foreign_key');
+            $table->unsignedBigInteger('permission_id');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onUpdate('cascade');
 
-            $table->unsignedBigInteger($permissionForeignKey);
-            $table->foreign($permissionForeignKey)->references('id')->on($permissionTableName)->onUpdate('cascade');
+            $table->unsignedInteger('role_id');
+            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');
 
-            $table->unsignedInteger($roleForeignKey);
-            $table->foreign($roleForeignKey)->references('id')->on($roleTableName)->onUpdate('cascade');
-
-            $table->unique([$permissionForeignKey, $roleForeignKey]);
+            $table->unique(['permission_id', 'role_id']);
         });
 
-        Schema::create(config('acl.database.permission_users.table_name'), function (Blueprint $table) use ($permissionTableName, $permissionForeignKey) {
+        Schema::create('permission_users', function (Blueprint $table) {
 
-            $permissionUsersUserTableNames = config('acl.database.permission_users.user_table_name');
-            $permissionUsersUserForeignKey = config('acl.database.permission_users.user_foreign_key');
+            $userTable = config('acl.user.table');
+            $userForeignKey = config('acl.user.foreign_key');
 
-            $table->unsignedBigInteger($permissionForeignKey);
-            $table->foreign($permissionForeignKey)->references('id')->on($permissionTableName)->onUpdate('cascade');
+            $table->unsignedBigInteger('permission_id');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onUpdate('cascade');
 
-            $table->unsignedBigInteger($permissionUsersUserForeignKey);
-            $table->foreign($permissionUsersUserForeignKey)->references('id')->on($permissionUsersUserTableNames)->onUpdate('cascade');
+            $table->unsignedBigInteger($userForeignKey);
+            $table->foreign($userForeignKey)->references('id')->on($userTable)->onUpdate('cascade');
             $table->boolean('is_able');
 
-            $table->unique([$permissionUsersUserForeignKey, $permissionForeignKey]);
+            $table->unique([$userForeignKey, 'permission_id']);
         });
     }
 
@@ -59,8 +53,8 @@ class CreatePermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists(config('acl.database.permission_users.table_name'));
-        Schema::dropIfExists(config('acl.database.permission_roles.table_name'));
-        Schema::dropIfExists(config('acl.database.permission.table_name'));
+        Schema::dropIfExists('permission_users');
+        Schema::dropIfExists('permission_roles');
+        Schema::dropIfExists('permissions');
     }
 }

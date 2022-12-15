@@ -4,10 +4,15 @@ namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 /**
+ * @property integer $id
  * @property string $name
  * @property string $title
+ * @property Collection $roles
+ * @property Collection $users
  */
 class Permission extends Model
 {
@@ -20,28 +25,23 @@ class Permission extends Model
         return config('acl.models.permission');
     }
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('acl.models.role'),
-            config('acl.database.permission_roles.table_name'),
-            config('acl.database.permission.foreign_key'),
-            config('acl.database.role.foreign_key')
+            Role::class,
+            'permission_roles',
+            'permission_id',
+            'role_id'
         );
     }
 
-    public function scopeName($query, $name)
-    {
-        return $query->where('name', $name);
-    }
-
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('acl.models.user'),
-            config('acl.database.role_users.foreign_key'),
-            config('acl.database.role.foreign_key'),
-            config('acl.database.permission_users.user_foreign_key')
+            config('acl.user.model'),
+            'permission_users',
+            'permission_id',
+            config('acl.user.foreign_key')
         );
     }
 
