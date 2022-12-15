@@ -25,6 +25,9 @@ return [
             'user_foreign_key' => 'user_id',
         ],
     ],
+    'cache' => [
+        'storage' => env('ACL_CACHE_DRIVER', 'database')
+    ],
     'models' => [
         'role' => \Celysium\ACL\Models\Role::class,
         'permission' => \Celysium\ACL\Models\Permission::class,
