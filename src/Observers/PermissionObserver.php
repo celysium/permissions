@@ -18,6 +18,6 @@ class PermissionObserver
 
     public function deleted(Permission $permission): void
     {
-        $permission->refreshCacheOnDelete();
+        $permission->refreshCache();
     }
 }
