@@ -3,24 +3,29 @@
 namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
+
+/**
+ * @property integer $id
+ * @property string $name
+ * @property string $title
+ * @property Collection $permissions
+ * @property Collection $users
+ */
 class Role extends Model
 {
     protected $fillable = ['name', 'title'];
-    public $timestamps = false;
 
-    public function getTable()
-    {
-        return config('acl.models.role');
-    }
+    public $timestamps = false;
 
     public function permissions()
     {
         return $this->belongsToMany(
-            config('acl.models.permission'),
-            config('acl.database.permission_roles.table_name'),
-            config('acl.database.role.foreign_key'),
-            config('acl.database.permission.foreign_key')
+            Permission::class,
+            'permission_roles',
+            'role_id',
+            'permission_id'
         );
     }
 
@@ -29,7 +34,7 @@ class Role extends Model
         return $this->belongsToMany(
             config('acl.models.user'),
             config('acl.database.role_users.foreign_key'),
-            config('acl.database.permission.foreign_key'),
+            'permission_id',
             config('acl.database.permission_users.user_foreign_key')
         );
     }
