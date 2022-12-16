@@ -27,7 +27,7 @@ class RoleController extends Controller
         if (! $request->has('paginate') || $request->get('paginate') === false) {
             return Responser::info($query->get());
         } else {
-            return Responser::info($query->paginate());
+            return Responser::collection($query->paginate());
         }
     }
 
