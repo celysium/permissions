@@ -2,6 +2,10 @@
 
 namespace Celysium\ACL;
 
+use Celysium\ACL\Models\Permission;
+use Celysium\ACL\Models\Role;
+use Celysium\ACL\Observers\PermissionObserver;
+use Celysium\ACL\Observers\RoleObserver;
 use Illuminate\Support\ServiceProvider;
 
 class ACLServiceProvider extends ServiceProvider
@@ -24,6 +28,9 @@ class ACLServiceProvider extends ServiceProvider
             __DIR__ . '/../config/acl.php', 'acl'
         );
 
-        $this->app->register(AclEventServiceProvider::class);
+        $this->booting(function () {
+            Permission::observe([PermissionObserver::class]);
+            Role::observe([RoleObserver::class]);
+        });
     }
 }
