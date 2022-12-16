@@ -113,7 +113,7 @@ class PermissionController extends Controller
         /** @var Permission $permission */
         $permission = $this->permission->query()->findOrFail($id);
 
-        if($permission->permissions()->count()) {
+        if($permission->roles()->count() || $permission->users()->count()) {
             return Responser::unprocessable([
                 'id' => [__('acl::messages.permission_cannot_delete')]
             ]);
