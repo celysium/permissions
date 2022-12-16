@@ -8,15 +8,14 @@ class ACLServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__ . '/../config/acl.php' => config_path('acl.php'),
-            ], 'acl-config');
-        }
+        $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        }
+        $this->publishes([
+            __DIR__ . '/../config/acl.php' => config_path('acl.php'),
+        ], 'acl-config');
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
     }
 
     public function register()
