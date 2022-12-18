@@ -11,7 +11,10 @@
   "autoload": {
     "psr-4": {
       "Celysium\\ACL\\": "src/"
-    }
+    },
+      "files": [
+          "src/Helpers.php"
+      ]
   },
   "extra": {
     "laravel": {
