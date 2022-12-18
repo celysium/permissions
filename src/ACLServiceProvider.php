@@ -6,6 +6,8 @@ use Celysium\ACL\Models\Permission;
 use Celysium\ACL\Models\Role;
 use Celysium\ACL\Observers\PermissionObserver;
 use Celysium\ACL\Observers\RoleObserver;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class ACLServiceProvider extends ServiceProvider
@@ -20,6 +22,12 @@ class ACLServiceProvider extends ServiceProvider
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
+        Gate::define('role', function (string $roles) {
+            $user = Auth::user();
+            $roles = explode('|', $roles);
+
+            return $user->hasRoles($roles);
+        });
     }
 
     public function register()
