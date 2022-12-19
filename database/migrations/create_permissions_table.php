@@ -40,7 +40,7 @@ class CreatePermissionsTable extends Migration
 
             $table->unsignedBigInteger($userForeignKey);
             $table->foreign($userForeignKey)->references('id')->on($userTable)->onUpdate('cascade');
-            $table->boolean('is_able');
+            $table->boolean('is_able')->default(false);
 
             $table->unique([$userForeignKey, 'permission_id']);
         });
