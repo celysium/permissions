@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-    }
-
     public function roles(Request $request, $id): JsonResponse
     {
         $request->validate([
