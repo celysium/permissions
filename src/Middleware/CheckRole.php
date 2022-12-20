@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
 
-class roleChecking
+class checkRole
 {
     /**
      * Handle an incoming request.
