@@ -47,13 +47,13 @@ class Role extends Model
             ->pluck('name')
             ->toArray();
 
-        Cache::store(config('acl.cache_driver'))
+        Cache::store(config('acl.cache.driver'))
             ->put($this->name, $permissions);
     }
 
     public function refreshCacheOnDelete(): void
     {
-        Cache::store(config('acl.cache_driver'))
+        Cache::store(config('acl.cache.driver'))
             ->forget($this->name);
     }
 }
