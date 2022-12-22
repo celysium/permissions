@@ -6,7 +6,6 @@ use Celysium\ACL\Models\Permission;
 use Celysium\ACL\Models\Role;
 use Celysium\ACL\Observers\PermissionObserver;
 use Celysium\ACL\Observers\RoleObserver;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,31 +41,17 @@ class ACLServiceProvider extends ServiceProvider
         Gate::define('role', function ($user, $role) {
             $roles = explode('|', $role);
 
-            $userRoles = Cache::store(config('acl.cache_driver'))
-                ->remember("acl.role.$user->id", config('acl.cache_time'), function () use ($user) {
-                    return $user->roles()
-                        ->pluck('name')
-                        ->toArray();
-                });
-
-            return $user->hasRoles($roles);
+            return $user->hasRolesCache($roles);
         });
 
         Gate::define('permission', function ($user, $permission) {
             $permissions = explode('|', $permission);
 
-            if (env('SHOP_MODE', 'light') === 'enterprise') {
+            if (config('acl.shop_mode') === 'enterprise') {
                 //
             }
 
-            $userRoles = Cache::store(config('acl.cache_driver'))
-                ->remember("acl.permission.$user->id", config('acl.cache_time'), function () use ($user) {
-                    return $user->permissions()
-                        ->pluck('name')
-                        ->toArray();
-                });
-
-            return $user->hasPermissions($permissions);
+            return $user->hasPermissionsCache($permissions);
         });
     }
 }
