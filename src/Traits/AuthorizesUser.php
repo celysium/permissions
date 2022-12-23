@@ -2,8 +2,6 @@
 
 namespace Celysium\ACL\Traits;
 
-use Celysium\ACL\Models\Permission;
-use Celysium\ACL\Models\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Cache;
