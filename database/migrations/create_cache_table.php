@@ -17,7 +17,7 @@ return new class extends Migration {
     {
         if (
             !Schema::hasTable('cache')
-            && config('acl.cache_driver') === 'database'
+            && config('acl.cache.driver') === 'database'
         ) {
             Artisan::call(static::COMMAND_CACHE_TABLE);
         }
@@ -30,7 +30,7 @@ return new class extends Migration {
      */
     public function down()
     {
-        if (config('acl.cache_driver') === 'database') {
+        if (config('acl.cache.driver') === 'database') {
             Schema::dropIfExists('cache');
             Schema::dropIfExists('cache_locks');
         }
