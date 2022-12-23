@@ -1,12 +1,12 @@
 <?php
 
 return [
-    'shop_mode' => env('SHOP_MODE', 'light'),
+    'shop_mode' => env('SHOP_MODE', 'lite'),
 
     'cache' => [
         'driver' => env('ACL_CACHE_DRIVER', 'database'),
 
-        'life_time' => env('ACL_CACHE_TIME', 60),
+        'lifetime' => env('ACL_CACHE_LIFETIME', 60),
     ],
 
     'user' => [
