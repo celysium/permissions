@@ -2,6 +2,8 @@
 
 namespace Celysium\ACL\Traits;
 
+use Celysium\ACL\Models\Permission;
+use Celysium\ACL\Models\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Cache;
@@ -31,6 +33,15 @@ trait AuthorizesUser
         );
     }
 
+    public function rolePermissions()
+    {
+        $thisWithRelations = $this->load('roles.permissions');
+
+        return $thisWithRelations->roles->map(function ($role) {
+            return $role->permissions->pluck('name')->toArray();
+        })->collapse()->toArray();
+    }
+
     public function assignRole(array $ids): array
     {
         return $this->roles()->sync($ids);
@@ -46,12 +57,12 @@ trait AuthorizesUser
         return $this->roles()->whereIn('name', $names)->exists();
     }
 
-    public function hasRolesCache($roles): bool
+    public function hasRolesCache(array $roles): bool
     {
         $userRoles = Cache::store(config('acl.cache.driver'))
             ->remember(
                 "acl.role.$this->id",
-                config('acl.cache.life_time'),
+                config('acl.cache.lifetime'),
                 fn() => $this->roles()->pluck('name')->toArray()
             );
 
@@ -63,13 +74,17 @@ trait AuthorizesUser
         return $this->permissions()->whereIn('name', $names)->exists();
     }
 
-    public function hasPermissionsCache($permissions): bool
+    public function hasPermissionsCache(array $permissions): bool
     {
+        if (config('acl.shop_mode') === 'enterprise') {
+            //
+        }
+
         $userPermissions = Cache::store(config('acl.cache.driver'))
             ->remember(
                 "acl.permission.$this->id",
-                config('acl.cache.life_time'),
-                fn() => $this->permissions()->pluck('name')->toArray()
+                config('acl.cache.lifetime'),
+                fn () => $this->rolePermissions()
             );
 
         return (bool)count(array_intersect($permissions, $userPermissions));
