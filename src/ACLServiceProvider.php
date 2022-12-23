@@ -2,6 +2,9 @@
 
 namespace Celysium\ACL;
 
+use App\Http\Kernel;
+use Celysium\ACL\Middleware\CheckPermission;
+use Celysium\ACL\Middleware\CheckRole;
 use Celysium\ACL\Models\Permission;
 use Celysium\ACL\Models\Role;
 use Celysium\ACL\Observers\PermissionObserver;
@@ -11,7 +14,7 @@ use Illuminate\Support\ServiceProvider;
 
 class ACLServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(Kernel $kernel)
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
@@ -20,6 +23,9 @@ class ACLServiceProvider extends ServiceProvider
         ], 'acl-config');
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        $kernel->pushMiddleware(CheckPermission::class);
+        $kernel->pushMiddleware(CheckRole::class);
 
         $this->registerGates();
     }
@@ -46,10 +52,6 @@ class ACLServiceProvider extends ServiceProvider
 
         Gate::define('permission', function ($user, $permission) {
             $permissions = explode('|', $permission);
-
-            if (config('acl.shop_mode') === 'enterprise') {
-                //
-            }
 
             return $user->hasPermissionsCache($permissions);
         });
