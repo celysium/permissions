@@ -3,6 +3,7 @@
 namespace Celysium\ACL\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
@@ -45,5 +46,28 @@ class Permission extends Model
         foreach ($this->roles as $role) {
             $role->refreshCache();
         }
+    }
+
+    /**
+     * @param array $names
+     * @param bool $throw
+     * @return array
+     */
+    public function getIds(array $names, bool $throw = false): array
+    {
+        $items = $this->query()
+            ->whereIn('name', $names)
+            ->get(['id', 'name']);
+
+        if($items->count() == count($names)) {
+            return $items->pluck('id')->toArray();
+        }
+        if($throw) {
+            return [];
+        }
+
+        $notExists = array_diff($names, $items->pluck('name')->toArray());
+
+        throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
     }
 }
