@@ -53,9 +53,9 @@ class Permission extends Model
      * @param bool $throw
      * @return array
      */
-    public function getIds(array $names, bool $throw = false): array
+    public static function getIds(array $names, bool $throw = false): array
     {
-        $items = $this->query()
+        $items = static::query()
             ->whereIn('name', $names)
             ->get(['id', 'name']);
 
