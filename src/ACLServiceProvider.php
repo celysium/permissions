@@ -69,15 +69,13 @@ class ACLServiceProvider extends ServiceProvider
     protected function registerGates()
     {
         Gate::define('role', function ($user, $role) {
-            $roles = explode('|', $role);
 
-            return $user->hasRolesCache($roles);
+            return $user->hasRoles(explode('|', $role));
         });
 
         Gate::define('permission', function ($user, $permission) {
-            $permissions = explode('|', $permission);
 
-            return $user->hasPermissionsCache($permissions);
+            return $user->hasPermissions(explode('|', $permission));
         });
     }
 
