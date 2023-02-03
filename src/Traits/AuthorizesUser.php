@@ -59,6 +59,12 @@ trait AuthorizesUser
         return $this->roles()->sync($ids);
     }
 
+    /**
+     * Assign permissions to user
+     *
+     * @param array $ids
+     * @return array
+     */
     public function assignPermissions(array $ids): array
     {
         return $this->permissions()->sync($ids);
