@@ -47,15 +47,13 @@ trait AuthorizesUser
         );
     }
 
-    public function rolePermissions()
-    {
-        $thisWithRelations = $this->load('roles.permissions');
 
-        return $thisWithRelations->roles->map(function ($role) {
-            return $role->permissions->pluck('name')->toArray();
-        })->collapse()->toArray();
-    }
-
+    /**
+     * Assign roles to user
+     *
+     * @param array $ids
+     * @return array
+     */
     public function assignRole(array $ids): array
     {
         return $this->roles()->sync($ids);
