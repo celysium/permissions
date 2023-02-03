@@ -4,10 +4,21 @@ namespace Celysium\ACL\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property integer $id
+ * @property Collection $roles
+ * @property Collection $permissions
+ */
 trait AuthorizesUser
 {
+    /**
+     * Get permissions of user
+     *
+     * @return BelongsToMany
+     */
     public function permissions(): BelongsToMany
     {
         /** @var Model $this */
