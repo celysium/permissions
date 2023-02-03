@@ -31,6 +31,11 @@ trait AuthorizesUser
             ->withPivot(['is_able']);
     }
 
+    /**
+     * Get roles of user
+     *
+     * @return BelongsToMany
+     */
     public function roles(): BelongsToMany
     {
         /** @var Model $this */
