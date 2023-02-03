@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'shop_mode' => env('SHOP_MODE', 'lite'),
-
     'cache' => [
         'driver' => env('ACL_CACHE_DRIVER', 'database'),
 

@@ -4,10 +4,21 @@ namespace Celysium\ACL\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property integer $id
+ * @property Collection $roles
+ * @property Collection $permissions
+ */
 trait AuthorizesUser
 {
+    /**
+     * Get permissions of user
+     *
+     * @return BelongsToMany
+     */
     public function permissions(): BelongsToMany
     {
         /** @var Model $this */
@@ -20,6 +31,11 @@ trait AuthorizesUser
             ->withPivot(['is_able']);
     }
 
+    /**
+     * Get roles of user
+     *
+     * @return BelongsToMany
+     */
     public function roles(): BelongsToMany
     {
         /** @var Model $this */
@@ -31,60 +47,130 @@ trait AuthorizesUser
         );
     }
 
-    public function rolePermissions()
-    {
-        $thisWithRelations = $this->load('roles.permissions');
 
-        return $thisWithRelations->roles->map(function ($role) {
-            return $role->permissions->pluck('name')->toArray();
-        })->collapse()->toArray();
-    }
-
+    /**
+     * Assign roles to user
+     *
+     * @param array $ids
+     * @return array
+     */
     public function assignRole(array $ids): array
     {
         return $this->roles()->sync($ids);
     }
 
+    /**
+     * Assign permissions to user
+     *
+     * @param array $ids
+     * @return array
+     */
     public function assignPermissions(array $ids): array
     {
         return $this->permissions()->sync($ids);
     }
 
-    public function hasRoles(array ...$names): bool
+    /**
+     * Get list roles of user
+     *
+     * @return array
+     */
+    public function allowsRoles(): array
     {
-        return $this->roles()->whereIn('name', $names)->exists();
+        return $this->roles()->pluck('name')->toArray();
     }
 
-    public function hasRolesCache(array $roles): bool
+    /**
+     * Cache roles of user
+     *
+     * @return array
+     */
+    public function cacheRole(): array
     {
-        $userRoles = Cache::store(config('acl.cache.driver'))
+        return Cache::store(config('acl.cache.driver'))
             ->remember(
                 "acl.role.$this->id",
                 config('acl.cache.lifetime'),
-                fn() => $this->roles()->pluck('name')->toArray()
+                fn () => $this->allowsRoles()
             );
-
-        return (bool)count(array_intersect($roles, $userRoles));
     }
 
-    public function hasPermissions(array ...$names): bool
+    /**
+     * Check access role for user
+     *
+     * @param array ...$names
+     * @return bool
+     */
+    public function hasRoles(array ...$names): bool
     {
-        return $this->permissions()->whereIn('name', $names)->exists();
+        return (bool)count(array_intersect($names, $this->cacheRole()));
     }
 
-    public function hasPermissionsCache(array $permissions): bool
+    /**
+     * Get list permissions of user
+     *
+     * @return array
+     */
+    public function allowsPermissions(): array
     {
-        if (config('acl.shop_mode') === 'enterprise') {
-            //
+        $permissions = [];
+        /** @var Model $this */
+        $withRoles = $this->load('roles.permissions');
+        /** @var self $withRoles */
+        foreach ($withRoles->roles as $role) {
+            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
         }
 
-        $userPermissions = Cache::store(config('acl.cache.driver'))
+        $customPermissions = $this->permissions()
+            ->select('permissions.name')
+            ->pluck('permission_users.is_able', 'permissions.name')
+            ->toArray();
+
+        if(count($customPermissions)) {
+            $permissions = array_merge(
+                $permissions,
+                array_keys(
+                    array_filter(
+                        $customPermissions,
+                        fn($permission) => $permission)
+                )
+            );
+            $permissions = array_diff(
+                $permissions,
+                array_keys(
+                    array_filter(
+                        $customPermissions,
+                        fn($permission) => !$permission)
+                )
+            );
+        }
+
+        return $permissions;
+    }
+
+    /**
+     * Cache permissions of user
+     *
+     * @return array
+     */
+    public function cachePermissions(): array
+    {
+        return Cache::store(config('acl.cache.driver'))
             ->remember(
                 "acl.permission.$this->id",
                 config('acl.cache.lifetime'),
-                fn () => $this->rolePermissions()
+                fn () => $this->allowsPermissions()
             );
+    }
 
-        return (bool)count(array_intersect($permissions, $userPermissions));
+    /**
+     * Check access permissions for user
+     *
+     * @param array ...$names
+     * @return bool
+     */
+    public function hasPermissions(array ...$names): bool
+    {
+        return (bool) count(array_intersect($names, $this->cachePermissions()));
     }
 }
