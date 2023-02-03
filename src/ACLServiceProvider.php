@@ -8,6 +8,7 @@ use Celysium\ACL\Models\Permission;
 use Celysium\ACL\Models\Role;
 use Celysium\ACL\Observers\PermissionObserver;
 use Celysium\ACL\Observers\RoleObserver;
+use Celysium\ACL\Traits\AuthorizesUser;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -70,11 +71,13 @@ class ACLServiceProvider extends ServiceProvider
     {
         Gate::define('role', function ($user, $role) {
 
+            /** @var AuthorizesUser $user */
             return $user->hasRoles(explode('|', $role));
         });
 
         Gate::define('permission', function ($user, $permission) {
 
+            /** @var AuthorizesUser $user */
             return $user->hasPermissions(explode('|', $permission));
         });
     }
