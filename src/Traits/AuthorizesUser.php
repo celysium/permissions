@@ -130,9 +130,7 @@ trait AuthorizesUser
             $permissions = array_merge(
                 $permissions,
                 array_keys(
-                    array_filter(
-                        $customPermissions,
-                        fn($permission) => $permission)
+                    array_filter($customPermissions)
                 )
             );
             $permissions = array_diff(
