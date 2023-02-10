@@ -62,11 +62,11 @@ class Permission extends Model
         if($items->count() == count($names)) {
             return $items->pluck('id')->toArray();
         }
-        if($throw) {
-            return [];
-        }
 
         $notExists = array_diff($names, $items->pluck('name')->toArray());
+        if($throw) {
+            return $notExists;
+        }
 
         throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
     }
