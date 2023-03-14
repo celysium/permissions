@@ -1,6 +1,6 @@
 <?php
 
-namespace Celysium\ACL\Controllers;
+namespace Celysium\Permission\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;

@@ -1,19 +1,19 @@
 <?php
 
-namespace Celysium\ACL;
+namespace Celysium\Permission;
 
-use Celysium\ACL\Middleware\CheckPermission;
-use Celysium\ACL\Middleware\CheckRole;
-use Celysium\ACL\Models\Permission;
-use Celysium\ACL\Models\Role;
-use Celysium\ACL\Observers\PermissionObserver;
-use Celysium\ACL\Observers\RoleObserver;
-use Celysium\ACL\Traits\AuthorizesUser;
+use Celysium\Permission\Middleware\CheckPermission;
+use Celysium\Permission\Middleware\CheckRole;
+use Celysium\Permission\Models\Permission;
+use Celysium\Permission\Models\Role;
+use Celysium\Permission\Observers\PermissionObserver;
+use Celysium\Permission\Observers\RoleObserver;
+use Celysium\Permission\Traits\AuthorizesUser;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
-class ACLServiceProvider extends ServiceProvider
+class PermissionServiceProvider extends ServiceProvider
 {
     public function boot()
     {
@@ -43,8 +43,8 @@ class ACLServiceProvider extends ServiceProvider
     public function publishConfig()
     {
         $this->publishes([
-            __DIR__ . '/../config/acl.php' => config_path('acl.php'),
-        ], 'acl-config');
+            __DIR__ . '/../config/permission.php' => config_path('permission.php'),
+        ], 'permission-config');
     }
 
     public function loadMigrations()
@@ -63,7 +63,7 @@ class ACLServiceProvider extends ServiceProvider
     public function registerConfig()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/acl.php', 'acl'
+            __DIR__ . '/../config/permission.php', 'permission'
         );
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Celysium\ACL\Traits;
+namespace Celysium\Permission\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,7 +23,7 @@ trait AuthorizesUser
     {
         /** @var Model $this */
         return $this->belongsToMany(
-            config('acl.user.model'),
+            config('permission.user.model'),
             'permission_users',
             'user_id',
             'permission_id'
@@ -40,7 +40,7 @@ trait AuthorizesUser
     {
         /** @var Model $this */
         return $this->belongsToMany(
-            config('acl.user.model'),
+            config('permission.user.model'),
             'role_users',
             'user_id',
             'role_id'
@@ -87,10 +87,10 @@ trait AuthorizesUser
      */
     public function cacheRole(): array
     {
-        return Cache::store(config('acl.cache.driver'))
+        return Cache::store(config('permission.cache.driver'))
             ->remember(
-                "acl.role.$this->id",
-                config('acl.cache.lifetime'),
+                "permission.role.$this->id",
+                config('permission.cache.lifetime'),
                 fn () => $this->allowsRoles()
             );
     }
@@ -153,10 +153,10 @@ trait AuthorizesUser
      */
     public function cachePermissions(): array
     {
-        return Cache::store(config('acl.cache.driver'))
+        return Cache::store(config('permission.cache.driver'))
             ->remember(
-                "acl.permission.$this->id",
-                config('acl.cache.lifetime'),
+                "permission.permission.$this->id",
+                config('permission.cache.lifetime'),
                 fn () => $this->allowsPermissions()
             );
     }

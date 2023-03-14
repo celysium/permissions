@@ -1,9 +1,9 @@
 <?php
 
-namespace Celysium\ACL\Controllers;
+namespace Celysium\Permission\Controllers;
 
-use Celysium\ACL\Models\Role;
-use Celysium\ACL\Traits\AuthorizesUser;
+use Celysium\Permission\Models\Role;
+use Celysium\Permission\Traits\AuthorizesUser;
 use Celysium\Responser\Responser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,7 +24,7 @@ class UserController extends Controller
             ],
         ]);
 
-        $model = config('acl.user.model');
+        $model = config('permission.user.model');
 
         if($this->isAuthorizesUser($model)) {
             /** @var AuthorizesUser $user */
@@ -54,7 +54,7 @@ class UserController extends Controller
             ],
         ]);
 
-        $model = config('acl.user.model');
+        $model = config('permission.user.model');
 
         if($this->isAuthorizesUser($model)) {
             /** @var AuthorizesUser $user */

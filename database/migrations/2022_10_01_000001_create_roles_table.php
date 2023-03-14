@@ -21,8 +21,8 @@ return new class extends Migration
 
         Schema::create('role_users', function (Blueprint $table) {
 
-            $userTable = config('acl.user.table');
-            $userForeignKey = config('acl.user.foreign_key');
+            $userTable = config('permission.user.table');
+            $userForeignKey = config('permission.user.foreign_key');
 
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');

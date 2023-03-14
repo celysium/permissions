@@ -1,6 +1,6 @@
 <?php
 
-namespace Celysium\ACL\Models;
+namespace Celysium\Permission\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -35,10 +35,10 @@ class Role extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('acl.models.user'),
+            config('permission.models.user'),
             'role_users',
             'permission_id',
-            config('acl.user.foreign_key')
+            config('permission.user.foreign_key')
         );
     }
 
@@ -48,13 +48,13 @@ class Role extends Model
             ->pluck('name')
             ->toArray();
 
-        Cache::store(config('acl.cache.driver'))
+        Cache::store(config('permission.cache.driver'))
             ->put($this->name, $permissions);
     }
 
     public function refreshCacheOnDelete(): void
     {
-        Cache::store(config('acl.cache.driver'))
+        Cache::store(config('permission.cache.driver'))
             ->forget($this->name);
     }
 

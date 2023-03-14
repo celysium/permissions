@@ -18,7 +18,7 @@ return new class extends Migration {
     {
         if (
             !Schema::hasTable('cache')
-            && config('acl.cache.driver') === 'database'
+            && config('permission.cache.driver') === 'database'
         ) {
             Schema::create('cache', function (Blueprint $table) {
                 $table->string('key')->primary();
@@ -41,7 +41,7 @@ return new class extends Migration {
      */
     public function down()
     {
-        if (config('acl.cache.driver') === 'database') {
+        if (config('permission.cache.driver') === 'database') {
             Schema::dropIfExists('cache');
             Schema::dropIfExists('cache_locks');
         }

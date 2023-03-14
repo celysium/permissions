@@ -1,8 +1,8 @@
 <?php
 
-namespace Celysium\ACL\Observers;
+namespace Celysium\Permission\Observers;
 
-use Celysium\ACL\Models\Permission;
+use Celysium\Permission\Models\Permission;
 
 class PermissionObserver
 {
