@@ -1,8 +1,8 @@
 <?php
 
-namespace Celysium\ACL\Controllers;
+namespace Celysium\Permission\Controllers;
 
-use Celysium\ACL\Models\Role;
+use Celysium\Permission\Models\Role;
 use Celysium\Responser\Responser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -115,7 +115,7 @@ class RoleController extends Controller
 
         if($role->permissions()->count()) {
             return Responser::unprocessable([
-                'id' => [__('acl::messages.role_cannot_delete')]
+                'id' => [__('permission::messages.role_cannot_delete')]
             ]);
         }
 

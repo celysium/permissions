@@ -2,9 +2,9 @@
 
 return [
     'cache' => [
-        'driver' => env('ACL_CACHE_DRIVER', 'database'),
+        'driver' => env('Permission_CACHE_DRIVER', 'database'),
 
-        'lifetime' => env('ACL_CACHE_LIFETIME', 60),
+        'lifetime' => env('Permission_CACHE_LIFETIME', 60),
     ],
 
     'user' => [

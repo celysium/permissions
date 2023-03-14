@@ -1,6 +1,6 @@
 <?php
 
-namespace Celysium\ACL\Models;
+namespace Celysium\Permission\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -33,10 +33,10 @@ class Permission extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('acl.user.model'),
+            config('permission.user.model'),
             'permission_users',
             'permission_id',
-            config('acl.user.foreign_key')
+            config('permission.user.foreign_key')
         );
     }
 

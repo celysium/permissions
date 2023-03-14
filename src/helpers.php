@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Auth;
 
-if (! function_exists('acl')) {
-    function acl(string $checkType, array $data, $user = null): bool
+if (! function_exists('permission')) {
+    function permission(string $checkType, array $data, $user = null): bool
     {
         if (is_null($user))
             $user = Auth::user();
@@ -13,6 +13,7 @@ if (! function_exists('acl')) {
         } elseif ($checkType === 'permissions') {
             return $user->hasPermissionsCache($data);
         }
+        return false;
     }
 }
 
