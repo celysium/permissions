@@ -34,12 +34,14 @@ return new class extends Migration
 
             $userTable = config('permission.user.table');
             $userForeignKey = config('permission.user.foreign_key');
+            $userRelationId = config('permission.user.relation_id');
+            $userType = config('permission.user.type');
 
             $table->unsignedBigInteger('permission_id');
             $table->foreign('permission_id')->references('id')->on('permissions')->onUpdate('cascade');
 
-            $table->unsignedBigInteger($userForeignKey);
-            $table->foreign($userForeignKey)->references('id')->on($userTable)->onUpdate('cascade');
+            $table->$userType($userForeignKey);
+            $table->foreign($userForeignKey)->references($userRelationId)->on($userTable)->onUpdate('cascade');
             $table->boolean('is_able')->default(false);
 
             $table->unique([$userForeignKey, 'permission_id']);
