@@ -100,10 +100,10 @@ trait AuthorizesUser
     /**
      * Check access role for user
      *
-     * @param array ...$names
+     * @param string ...$names
      * @return bool
      */
-    public function hasRoles(array ...$names): bool
+    public function hasRoles(string ...$names): bool
     {
         return (bool)count(array_intersect($names, $this->cacheRole()));
     }
@@ -166,10 +166,10 @@ trait AuthorizesUser
     /**
      * Check access permissions for user
      *
-     * @param array ...$names
+     * @param string ...$names
      * @return bool
      */
-    public function hasPermissions(array ...$names): bool
+    public function hasPermissions(string ...$names): bool
     {
         return (bool) count(array_intersect($names, $this->cachePermissions()));
     }
