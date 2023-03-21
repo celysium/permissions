@@ -2,6 +2,8 @@
 
 namespace Celysium\Permission\Traits;
 
+use Celysium\Permission\Models\Permission;
+use Celysium\Permission\Models\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
@@ -23,7 +25,7 @@ trait AuthorizesUser
     {
         /** @var Model $this */
         return $this->belongsToMany(
-            config('permission.user.model'),
+            Permission::class,
             'permission_users',
             'user_id',
             'permission_id'
@@ -40,7 +42,7 @@ trait AuthorizesUser
     {
         /** @var Model $this */
         return $this->belongsToMany(
-            config('permission.user.model'),
+            Role::class,
             'role_users',
             'user_id',
             'role_id'
