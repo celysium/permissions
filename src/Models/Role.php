@@ -2,6 +2,7 @@
 
 namespace Celysium\Permission\Models;
 
+use Celysium\Permission\Traits\Permissions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -44,18 +45,13 @@ class Role extends Model
 
     public function refreshCache(): void
     {
-        $permissions = $this->permissions()
-            ->pluck('name')
-            ->toArray();
-
-        Cache::store(config('permission.cache.driver'))
-            ->put($this->name, $permissions);
-    }
-
-    public function refreshCacheOnDelete(): void
-    {
-        Cache::store(config('permission.cache.driver'))
-            ->forget($this->name);
+        /** @var Permissions $user */
+        foreach ($this->users as $user) {
+            $key = str_replace('{user_id}', $user->id, config("permission.cache.key_role"));
+            if(Cache::has($key)) {
+                $user->cacheRole(true);
+            }
+        }
     }
 
     /**
@@ -67,17 +63,18 @@ class Role extends Model
     {
         $items = static::query()
             ->whereIn('name', $names)
-            ->get(['id', 'name']);
+            ->select(['id', 'name'])
+            ->pluck('id', 'name')
+            ->toArray();
 
-        if($items->count() == count($names)) {
-            return $items->pluck('id')->toArray();
+        if(count($items) === count($names)) {
+            return array_values($items);
         }
 
-        $notExists = array_diff($names, $items->pluck('name')->toArray());
         if($throw) {
-            return $notExists;
+            $notExists = array_diff($names, array_keys($items));
+            throw new ModelNotFoundException('Not found roles name ' . implode(', ', $notExists));
         }
-
-        throw new ModelNotFoundException('Not found roles name ' . implode(', ', $notExists));
+        return array_values($items);
     }
 }

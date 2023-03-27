@@ -2,125 +2,134 @@
 
 namespace Celysium\Permission\Controllers;
 
+use Celysium\Base\Controller\Controller;
 use Celysium\Permission\Models\Permission;
-use Celysium\Responser\Responser;
-use Illuminate\Http\JsonResponse;
+use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PermissionController extends Controller
 {
-    public function __construct(protected Permission $permission)
+    public function __construct(protected PermissionRepositoryInterface $repository)
     {
     }
 
-    public function index(Request $request): JsonResponse
+    /**
+     * @param Request $request
+     * @param callable|null $authroize
+     * @return LengthAwarePaginator|Collection
+     */
+    public function index(Request $request, callable $authroize = null): LengthAwarePaginator|Collection
     {
-        $query = $this->permission->query();
+        if ($authroize) {
+            $authroize();
+        }
 
-        if ($title = $request->get('title')) {
-            $query->where('title', 'like', "%$title%");
-        }
-        if ($name = $request->get('name')) {
-            $query->where('name', 'like', "%$name%");
-        }
-        if (! $request->has('paginate') || $request->get('paginate') === false) {
-            return Responser::info($query->get());
-        } else {
-            return Responser::collection($query->paginate());
-        }
+        return $this->repository->index($request->all());
     }
 
-    public function store(Request $request): JsonResponse
+    /**
+     * @param int $id
+     * @param callable|null $authroize
+     * @return Model
+     */
+    public function show(int $id, callable $authroize = null): Model
     {
+        if ($authroize) {
+            $authroize();
+        }
+
+        return $this->repository->findOrFail($id);
+    }
+
+    /**
+     * @param Request $request
+     * @param callable|null $authroize
+     * @return Permission
+     */
+    public function store(Request $request, callable $authroize = null): Permission
+    {
+        if ($authroize) {
+            $authroize();
+        }
+
         $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:193',
-                'unique:permissions,name'
-            ],
-            'title' => [
-                'required',
-                'string',
-                'max:193',
-                'unique:permissions,title'
-            ],
-            'roles' => [
-                'required',
-                'array',
-            ],
-            'roles.*' => [
-                'integer',
-                'exists:roles,id',
-            ],
+            'name'    => ['required', 'string', 'max:193', 'unique:permissions,name'],
+            'title'   => ['required', 'string', 'max:193', 'unique:permissions,title'],
+            'roles'   => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
         DB::beginTransaction();
 
         /** @var Permission $permission */
-        $permission = $this->permission->query()->create($request->all());
+        $permission = $this->repository->store($request->all());
 
-        $permission->roles()->sync($request->get('roles'));
-
+        if($roles = $request->get('roles')) {
+            $permission->roles()->sync($roles);
+        }
         DB::commit();
 
-        return Responser::created($permission->toArray());
+        return $permission;
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    /**
+     * @param Request $request
+     * @param int $id
+     * @param callable|null $authroize
+     * @return Permission
+     */
+    public function update(Request $request, int $id, callable $authroize = null): Permission
     {
+        if ($authroize) {
+            $authroize();
+        }
+
         $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:193',
-                'unique:permissions,name,' . $id
-            ],
-            'title' => [
-                'required',
-                'string',
-                'max:193',
-                'unique:permissions,title,' . $id
-            ],
-            'roles' => [
-                'required',
-                'array',
-            ],
-            'roles.*' => [
-                'integer',
-                'exists:roles,id',
-            ],
+            'name'    => ['required', 'string', 'max:193', 'unique:permissions,name,' . $id],
+            'title'   => ['required', 'string', 'max:193', 'unique:permissions,title,' . $id],
+            'roles'   => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
         DB::beginTransaction();
 
         /** @var Permission $permission */
-        $permission = $this->permission->query()->findOrFail($id);
+        $permission = $this->repository->updateById($id, $request->all());
 
-        $permission->update($request->all());
-
-        $permission->roles()->sync($request->get('roles'));
-
+        if($roles = $request->get('roles')) {
+            $permission->roles()->sync($roles);
+        }
         DB::commit();
 
-        return Responser::success($permission->fresh()->toArray());
+        return $permission;
 
     }
 
-    public function destroy(int $id): JsonResponse
+    /**
+     * @param int $id
+     * @param callable|null $authroize
+     * @return bool
+     * @throws ValidationException
+     */
+    public function destroy(int $id, callable $authroize = null): bool
     {
+        if ($authroize) {
+            $authroize();
+        }
         /** @var Permission $permission */
-        $permission = $this->permission->query()->findOrFail($id);
+        $permission = $this->repository->findOrFail($id);
 
-        if($permission->roles()->count() || $permission->users()->count()) {
-            return Responser::unprocessable([
+        if ($permission->roles()->count() || $permission->users()->count()) {
+            throw ValidationException::withMessages([
                 'id' => [__('permission::messages.permission_cannot_delete')]
             ]);
         }
 
-        $permission->delete();
-
-        return Responser::deleted();
+        return $permission->delete();
     }
 }

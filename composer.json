@@ -11,10 +11,7 @@
   "autoload": {
     "psr-4": {
       "Celysium\\Permission\\": "src/"
-    },
-      "files": [
-          "src/helpers.php"
-      ]
+    }
   },
   "extra": {
     "laravel": {
@@ -36,7 +33,7 @@
   "require": {
     "php" : "^8.0",
     "laravel/framework" : "^9.0|^10.0",
-    "celysium/responser": "^1.0"
+    "celysium/base": "^1.0"
   },
   "minimum-stability": "stable",
   "prefer-stable": true

@@ -2,78 +2,62 @@
 
 namespace Celysium\Permission\Controllers;
 
-use Celysium\Permission\Models\Role;
-use Celysium\Permission\Traits\AuthorizesUser;
-use Celysium\Responser\Responser;
-use Illuminate\Http\JsonResponse;
+use Celysium\Base\Controller\Controller;
+use Celysium\Permission\Traits\Permissions;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-    public function roles(Request $request, $id): JsonResponse
+    /**
+     * @throws Exception
+     */
+    public function roles(Request $request, int|string $user_id)
     {
-        $request->validate([
-            'roles' => [
-                'required',
-                'array',
-            ],
-            'roles.*' => [
-                'integer',
-                'exists:roles,id',
-            ],
-        ]);
-
         $model = config('permission.user.model');
+        /** @var Permissions $user */
+        $user = $model->query()->findOrFail($user_id);
 
-        if($this->isAuthorizesUser($model)) {
-            /** @var AuthorizesUser $user */
-            $user = $model->query()->findOrFail($id);
-            $user->assignRole($request->get('roles'));
-
-            return Responser::success();
+        if (!$this->isPermissions($model)) {
+            throw new Exception('model user dont use trait Permissions');
         }
 
-        return Responser::serverError('model user dont use trait AuthorizesUser');
+        $request->validate([
+            'roles'   => ['required', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+        ]);
+
+        $user->attachRolesById($request->get('roles'));
     }
 
-    public function permissions(Request $request, $id): JsonResponse
+    /**
+     * @throws Exception
+     */
+    public function permissions(Request $request, int|string $user_id)
     {
-        $request->validate([
-            'permissions' => [
-                'required',
-                'array',
-            ],
-            'permissions.*' => [
-                'integer',
-                'exists:permissions,id',
-            ],
-            'permissions.*.is_able' => [
-                'required',
-                'boolean',
-            ],
-        ]);
-
         $model = config('permission.user.model');
+        /** @var Permissions $user */
+        $user = $model->query()->findOrFail($user_id);
 
-        if($this->isAuthorizesUser($model)) {
-            /** @var AuthorizesUser $user */
-            $user = $model->query()->findOrFail($id);
-            $user->assignPermissions($request->get('permissions'));
-
-
-            return Responser::success();
+        if (!$this->isPermissions($model)) {
+            throw new Exception('model user dont use trait Permissions');
         }
 
-        return Responser::serverError('model user dont use trait AuthorizesUser');
+        $request->validate([
+            'permissions'           => ['required', 'array'],
+            'permissions.*'         => ['integer', 'exists:permissions,id'],
+            'permissions.*.is_able' => ['required', 'boolean'],
+        ]);
+
+        $user->attachPermissionsById($request->get('permissions'));
     }
 
     /**
      * @param string $model
      * @return bool
      */
-    protected function isAuthorizesUser(string $model): bool
+    protected function isPermissions(string $model): bool
     {
-        return in_array(AuthorizesUser::class, class_uses_recursive($model));
+        return in_array(Permissions::class, class_uses_recursive($model));
     }
 }
