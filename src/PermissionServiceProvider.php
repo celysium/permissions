@@ -8,7 +8,11 @@ use Celysium\Permission\Models\Permission;
 use Celysium\Permission\Models\Role;
 use Celysium\Permission\Observers\PermissionObserver;
 use Celysium\Permission\Observers\RoleObserver;
-use Celysium\Permission\Traits\AuthorizesUser;
+use Celysium\Permission\Repositories\Permission\PermissionRepository;
+use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
+use Celysium\Permission\Repositories\Role\RoleRepository;
+use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
+use Celysium\Permission\Traits\Permissions;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -33,6 +37,8 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerConfig();
 
         $this->registerObservers();
+
+        $this->registerRepositories();
     }
 
     public function loadRoutes()
@@ -65,20 +71,19 @@ class PermissionServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../config/permission.php', 'permission'
         );
+
     }
 
     protected function registerGates()
     {
-        Gate::define('role', function ($user, $role) {
-
-            /** @var AuthorizesUser $user */
-            return $user->hasRoles(explode('|', $role));
+        Gate::define('role', function ($user, string $role) {
+            /** @var Permissions $user */
+            return $user->hasRoles($role);
         });
 
-        Gate::define('permission', function ($user, $permission) {
-
-            /** @var AuthorizesUser $user */
-            return $user->hasPermissions(explode('|', $permission));
+        Gate::define('permission', function ($user, string $permission) {
+            /** @var Permissions $user */
+            return $user->hasPermissions($permission);
         });
     }
 
@@ -88,5 +93,11 @@ class PermissionServiceProvider extends ServiceProvider
             Permission::observe([PermissionObserver::class]);
             Role::observe([RoleObserver::class]);
         });
+    }
+
+    public function registerRepositories()
+    {
+        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
+        $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
     }
 }

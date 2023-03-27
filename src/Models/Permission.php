@@ -2,10 +2,12 @@
 
 namespace Celysium\Permission\Models;
 
+use Celysium\Permission\Traits\Permissions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @property integer $id
@@ -42,9 +44,12 @@ class Permission extends Model
 
     public function refreshCache(): void
     {
-        /** @var Role $role */
-        foreach ($this->roles as $role) {
-            $role->refreshCache();
+        /** @var Permissions $user */
+        foreach ($this->users as $user) {
+            $key = str_replace('{user_id}', $user->id, config("permission.cache.key_permission"));
+            if(Cache::has($key)) {
+                $user->cachePermissions(true);
+            }
         }
     }
 
@@ -57,17 +62,18 @@ class Permission extends Model
     {
         $items = static::query()
             ->whereIn('name', $names)
-            ->get(['id', 'name']);
+            ->select(['id', 'name'])
+            ->pluck('id', 'name')
+            ->toArray();
 
-        if($items->count() == count($names)) {
-            return $items->pluck('id')->toArray();
+        if(count($items) === count($names)) {
+            return array_values($items);
         }
 
-        $notExists = array_diff($names, $items->pluck('name')->toArray());
         if($throw) {
-            return $notExists;
+            $notExists = array_diff($names, array_keys($items));
+            throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
         }
-
-        throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
+        return array_values($items);
     }
 }

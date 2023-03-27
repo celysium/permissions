@@ -2,8 +2,10 @@
 
 return [
     'cache' => [
-        'driver'   => env('Permission_CACHE_DRIVER', 'database'),
-        'lifetime' => env('Permission_CACHE_LIFETIME', 60),
+        'driver'         => env('PERMISSION_CACHE_DRIVER', 'database'),
+        'lifetime'       => env('PERMISSION_CACHE_LIFETIME', 60),
+        'key_permission' => "permission.{user_id}",
+        'key_role'       => "role.{user_id}",
     ],
 
     'user' => [

@@ -18,6 +18,6 @@ class RoleObserver
 
     public function deleted(Role $role): void
     {
-        $role->refreshCacheOnDelete();
+        $role->refreshCache();
     }
 }
