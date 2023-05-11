@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
+     * @param Request $request
+     * @param int|string $user_id
      * @throws Exception
      */
     public function roles(Request $request, int|string $user_id)
@@ -31,6 +33,8 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param int|string $user_id
      * @throws Exception
      */
     public function permissions(Request $request, int|string $user_id)
