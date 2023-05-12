@@ -21,13 +21,13 @@ class PermissionController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return LengthAwarePaginator|Collection|JsonResponse
      */
-    public function index(Request $request, callable $authroize = null): LengthAwarePaginator|Collection|JsonResponse
+    public function index(Request $request, callable $authorize = null): LengthAwarePaginator|Collection|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->index($request->all());
@@ -35,13 +35,13 @@ class PermissionController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Model|JsonResponse
      */
-    public function show(int $id, callable $authroize = null): Model|JsonResponse
+    public function show(int $id, callable $authorize = null): Model|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->findOrFail($id);
@@ -49,13 +49,13 @@ class PermissionController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Permission|JsonResponse
      */
-    public function store(Request $request, callable $authroize = null): Permission|JsonResponse
+    public function store(Request $request, callable $authorize = null): Permission|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -81,13 +81,13 @@ class PermissionController extends Controller
     /**
      * @param Request $request
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Permission|JsonResponse
      */
-    public function update(Request $request, int $id, callable $authroize = null): Permission|JsonResponse
+    public function update(Request $request, int $id, callable $authorize = null): Permission|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -113,14 +113,14 @@ class PermissionController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return bool|JsonResponse
      * @throws ValidationException
      */
-    public function destroy(int $id, callable $authroize = null): bool|JsonResponse
+    public function destroy(int $id, callable $authorize = null): bool|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
         /** @var Permission $permission */
         $permission = $this->repository->findOrFail($id);
