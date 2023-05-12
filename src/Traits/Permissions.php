@@ -153,6 +153,7 @@ trait Permissions
         foreach ($withRoles->roles as $role) {
             $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
         }
+        $permissions = array_unique($permissions);
 
         $customPermissions = $this->permissions()
             ->select('permissions.name')
