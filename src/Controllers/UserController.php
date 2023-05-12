@@ -10,10 +10,17 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
+     * @param Request $request
+     * @param int|string $user_id
+     * @param callable|null $authorize
      * @throws Exception
      */
-    public function roles(Request $request, int|string $user_id)
+    public function assignRolesById(Request $request, int|string $user_id, callable $authorize = null)
     {
+        if ($authorize) {
+            $authorize();
+        }
+
         $model = config('permission.user.model');
         /** @var Permissions $user */
         $user = $model->query()->findOrFail($user_id);
@@ -31,10 +38,17 @@ class UserController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @param int|string $user_id
+     * @param callable|null $authorize
      * @throws Exception
      */
-    public function permissions(Request $request, int|string $user_id)
+    public function assignPermissionsById(Request $request, int|string $user_id, callable $authorize = null)
     {
+        if ($authorize) {
+            $authorize();
+        }
+
         $model = config('permission.user.model');
         /** @var Permissions $user */
         $user = $model->query()->findOrFail($user_id);
