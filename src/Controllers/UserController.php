@@ -34,7 +34,9 @@ class UserController extends Controller
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
-        $user->attachRolesById($request->get('roles'));
+        $user->roles()->sync($request->get('roles'));
+
+        return $user;
     }
 
     /**
@@ -63,7 +65,9 @@ class UserController extends Controller
             'permissions.*.is_able' => ['required', 'boolean'],
         ]);
 
-        $user->attachPermissionsById($request->get('permissions'));
+        $user->permissions()->sync($request->get('permissions'));
+
+        return $user;
     }
 
     /**
