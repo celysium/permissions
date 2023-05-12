@@ -34,17 +34,17 @@ class RoleController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param Role $role
      * @param callable|null $authorize
      * @return Model|JsonResponse
      */
-    public function show(int $id, callable $authorize = null): Model|JsonResponse
+    public function show(Role $role, callable $authorize = null): Model|JsonResponse
     {
         if ($authorize) {
             $authorize();
         }
 
-        return $this->repository->findOrFail($id);
+        return $role;
     }
 
     /**
@@ -79,19 +79,19 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param int $id
+     * @param Role $role
      * @param callable|null $authorize
      * @return Role|JsonResponse
      */
-    public function update(Request $request, int $id, callable $authorize = null): Role|JsonResponse
+    public function update(Request $request, Role $role, callable $authorize = null): Role|JsonResponse
     {
         if ($authorize) {
             $authorize();
         }
 
         $request->validate([
-            'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $id],
-            'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $id],
+            'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
+            'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
             'permissions'   => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -99,7 +99,7 @@ class RoleController extends Controller
         DB::beginTransaction();
 
         /** @var Role $role */
-        $role = $this->repository->updateById($id, $request->all());
+        $role = $this->repository->update($role, $request->all());
 
         $role->permissions()->sync($request->get('permissions'));
 
@@ -109,19 +109,16 @@ class RoleController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param Role $role
      * @param callable|null $authorize
      * @return bool|JsonResponse
      * @throws ValidationException
      */
-    public function destroy(int $id, callable $authorize = null): bool|JsonResponse
+    public function destroy(Role $role, callable $authorize = null): bool|JsonResponse
     {
         if ($authorize) {
             $authorize();
         }
-
-        /** @var Role $role */
-        $role = $this->repository->findOrFail($id);
 
         if ($role->permissions()->count() || $role->users()->count()) {
             throw ValidationException::withMessages([
