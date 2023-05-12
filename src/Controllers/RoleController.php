@@ -131,4 +131,21 @@ class RoleController extends Controller
 
         return $this->repository->destroy($role);
     }
+
+    /**
+     * @param Role $role
+     * @param array $permissions
+     * @param callable|null $authorize
+     * @return Role
+     */
+    public function syncPermissions(Role $role, array $permissions, callable $authorize = null): Role
+    {
+        if ($authorize) {
+            $authorize();
+        }
+
+        $role->permissions()->sync($permissions);
+
+        return $role->refresh();
+    }
 }
