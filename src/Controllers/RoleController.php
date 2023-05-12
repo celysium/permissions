@@ -21,41 +21,41 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return LengthAwarePaginator|Collection|JsonResponse
      */
-    public function index(Request $request, callable $authroize = null): LengthAwarePaginator|Collection|JsonResponse
+    public function index(Request $request, callable $authorize = null): LengthAwarePaginator|Collection|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->index($request->all());
     }
 
     /**
-     * @param int $id
-     * @param callable|null $authroize
+     * @param Role $role
+     * @param callable|null $authorize
      * @return Model|JsonResponse
      */
-    public function show(int $id, callable $authroize = null): Model|JsonResponse
+    public function show(Role $role, callable $authorize = null): Model|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
-        return $this->repository->findOrFail($id);
+        return $role;
     }
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Role|JsonResponse
      */
-    public function store(Request $request, callable $authroize = null): Role|JsonResponse
+    public function store(Request $request, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -79,19 +79,19 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param int $id
-     * @param callable|null $authroize
+     * @param Role $role
+     * @param callable|null $authorize
      * @return Role|JsonResponse
      */
-    public function update(Request $request, int $id, callable $authroize = null): Role|JsonResponse
+    public function update(Request $request, Role $role, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
-            'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $id],
-            'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $id],
+            'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
+            'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
             'permissions'   => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -99,7 +99,7 @@ class RoleController extends Controller
         DB::beginTransaction();
 
         /** @var Role $role */
-        $role = $this->repository->updateById($id, $request->all());
+        $role = $this->repository->update($role, $request->all());
 
         $role->permissions()->sync($request->get('permissions'));
 
@@ -109,26 +109,40 @@ class RoleController extends Controller
     }
 
     /**
-     * @param int $id
-     * @param callable|null $authroize
+     * @param Role $role
+     * @param callable|null $authorize
      * @return bool|JsonResponse
      * @throws ValidationException
      */
-    public function destroy(int $id, callable $authroize = null): bool|JsonResponse
+    public function destroy(Role $role, callable $authorize = null): bool|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
-        /** @var Role $role */
-        $role = $this->repository->findOrFail($id);
-
         if ($role->permissions()->count() || $role->users()->count()) {
-           throw ValidationException::withMessages([
-               'id' => [__('permission::messages.role_cannot_delete')]
-           ]);
+            throw ValidationException::withMessages([
+                'id' => [__('permission::messages.role_cannot_delete')]
+            ]);
         }
 
         return $this->repository->destroy($role);
+    }
+
+    /**
+     * @param Role $role
+     * @param array $permissions
+     * @param callable|null $authorize
+     * @return Role
+     */
+    public function syncPermissions(Role $role, array $permissions, callable $authorize = null): Role
+    {
+        if ($authorize) {
+            $authorize();
+        }
+
+        $role->permissions()->sync($permissions);
+
+        return $role->refresh();
     }
 }
