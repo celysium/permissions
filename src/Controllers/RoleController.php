@@ -21,13 +21,13 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return LengthAwarePaginator|Collection|JsonResponse
      */
-    public function index(Request $request, callable $authroize = null): LengthAwarePaginator|Collection|JsonResponse
+    public function index(Request $request, callable $authorize = null): LengthAwarePaginator|Collection|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->index($request->all());
@@ -35,13 +35,13 @@ class RoleController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Model|JsonResponse
      */
-    public function show(int $id, callable $authroize = null): Model|JsonResponse
+    public function show(int $id, callable $authorize = null): Model|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->findOrFail($id);
@@ -49,13 +49,13 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Role|JsonResponse
      */
-    public function store(Request $request, callable $authroize = null): Role|JsonResponse
+    public function store(Request $request, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -80,13 +80,13 @@ class RoleController extends Controller
     /**
      * @param Request $request
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return Role|JsonResponse
      */
-    public function update(Request $request, int $id, callable $authroize = null): Role|JsonResponse
+    public function update(Request $request, int $id, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -110,23 +110,23 @@ class RoleController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
+     * @param callable|null $authorize
      * @return bool|JsonResponse
      * @throws ValidationException
      */
-    public function destroy(int $id, callable $authroize = null): bool|JsonResponse
+    public function destroy(int $id, callable $authorize = null): bool|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         /** @var Role $role */
         $role = $this->repository->findOrFail($id);
 
         if ($role->permissions()->count() || $role->users()->count()) {
-           throw ValidationException::withMessages([
-               'id' => [__('permission::messages.role_cannot_delete')]
-           ]);
+            throw ValidationException::withMessages([
+                'id' => [__('permission::messages.role_cannot_delete')]
+            ]);
         }
 
         return $this->repository->destroy($role);
