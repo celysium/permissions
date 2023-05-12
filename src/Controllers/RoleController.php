@@ -6,6 +6,7 @@ use Celysium\Base\Controller\Controller;
 use Celysium\Permission\Models\Role;
 use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -20,13 +21,13 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
-     * @return LengthAwarePaginator|Collection
+     * @param callable|null $authorize
+     * @return LengthAwarePaginator|Collection|JsonResponse
      */
-    public function index(Request $request, callable $authroize = null): LengthAwarePaginator|Collection
+    public function index(Request $request, callable $authorize = null): LengthAwarePaginator|Collection|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->index($request->all());
@@ -34,13 +35,13 @@ class RoleController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
-     * @return Model
+     * @param callable|null $authorize
+     * @return Model|JsonResponse
      */
-    public function show(int $id, callable $authroize = null): Model
+    public function show(int $id, callable $authorize = null): Model|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         return $this->repository->findOrFail($id);
@@ -48,13 +49,13 @@ class RoleController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authroize
-     * @return Role
+     * @param callable|null $authorize
+     * @return Role|JsonResponse
      */
-    public function store(Request $request, callable $authroize = null): Role
+    public function store(Request $request, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -79,13 +80,13 @@ class RoleController extends Controller
     /**
      * @param Request $request
      * @param int $id
-     * @param callable|null $authroize
-     * @return Role
+     * @param callable|null $authorize
+     * @return Role|JsonResponse
      */
-    public function update(Request $request, int $id, callable $authroize = null): Role
+    public function update(Request $request, int $id, callable $authorize = null): Role|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         $request->validate([
@@ -109,14 +110,14 @@ class RoleController extends Controller
 
     /**
      * @param int $id
-     * @param callable|null $authroize
-     * @return bool
+     * @param callable|null $authorize
+     * @return bool|JsonResponse
      * @throws ValidationException
      */
-    public function destroy(int $id, callable $authroize = null): bool
+    public function destroy(int $id, callable $authorize = null): bool|JsonResponse
     {
-        if ($authroize) {
-            $authroize();
+        if ($authorize) {
+            $authorize();
         }
 
         /** @var Role $role */
