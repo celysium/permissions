@@ -16,7 +16,7 @@ class UserController extends Controller
      * @param callable|null $authorize
      * @throws Exception
      */
-    public function assignRolesById(Request $request, Model $user, callable $authorize = null)
+    public function syncRolesById(Request $request, Model $user, callable $authorize = null)
     {
         if ($authorize) {
             $authorize();
@@ -43,7 +43,7 @@ class UserController extends Controller
      * @param callable|null $authorize
      * @throws Exception
      */
-    public function assignPermissionsById(Request $request, Model $user, callable $authorize = null)
+    public function syncPermissionsById(Request $request, Model $user, callable $authorize = null)
     {
         if ($authorize) {
             $authorize();
