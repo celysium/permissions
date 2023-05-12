@@ -135,7 +135,7 @@ class RoleController extends Controller
      * @param callable|null $authorize
      * @return Role
      */
-    public function syncPermissions(Role $role, array $permissions, callable $authorize = null): Role
+    public function syncPermissions(Role $role, array $permissions, callable $authorize = null): Role|JsonResponse
     {
         if ($authorize) {
             $authorize();
