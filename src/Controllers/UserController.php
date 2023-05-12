@@ -5,27 +5,24 @@ namespace Celysium\Permission\Controllers;
 use Celysium\Base\Controller\Controller;
 use Celysium\Permission\Traits\Permissions;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     /**
      * @param Request $request
-     * @param int|string $user_id
+     * @param Model $user
      * @param callable|null $authorize
      * @throws Exception
      */
-    public function assignRolesById(Request $request, int|string $user_id, callable $authorize = null)
+    public function assignRolesById(Request $request, Model $user, callable $authorize = null)
     {
         if ($authorize) {
             $authorize();
         }
 
-        $model = config('permission.user.model');
-        /** @var Permissions $user */
-        $user = $model->query()->findOrFail($user_id);
-
-        if (!$this->isPermissions($model)) {
+        if (!$this->isPermissions($user)) {
             throw new Exception('model user dont use trait Permissions');
         }
 
@@ -34,6 +31,7 @@ class UserController extends Controller
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
 
+        /** @var Permissions $user */
         $user->roles()->sync($request->get('roles'));
 
         return $user;
@@ -41,21 +39,17 @@ class UserController extends Controller
 
     /**
      * @param Request $request
-     * @param int|string $user_id
+     * @param Model $user
      * @param callable|null $authorize
      * @throws Exception
      */
-    public function assignPermissionsById(Request $request, int|string $user_id, callable $authorize = null)
+    public function assignPermissionsById(Request $request, Model $user, callable $authorize = null)
     {
         if ($authorize) {
             $authorize();
         }
 
-        $model = config('permission.user.model');
-        /** @var Permissions $user */
-        $user = $model->query()->findOrFail($user_id);
-
-        if (!$this->isPermissions($model)) {
+        if (!$this->isPermissions($user::class)) {
             throw new Exception('model user dont use trait Permissions');
         }
 
@@ -65,6 +59,7 @@ class UserController extends Controller
             'permissions.*.is_able' => ['required', 'boolean'],
         ]);
 
+        /** @var Permissions $user */
         $user->permissions()->sync($request->get('permissions'));
 
         return $user;
