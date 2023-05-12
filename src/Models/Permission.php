@@ -58,7 +58,7 @@ class Permission extends Model
      * @param bool $throw
      * @return array
      */
-    public static function getIds(array $names, bool $throw = false): array
+    public static function getIds(array $names, bool $throw = true): array
     {
         $items = static::query()
             ->whereIn('name', $names)
@@ -66,14 +66,11 @@ class Permission extends Model
             ->pluck('id', 'name')
             ->toArray();
 
-        if(count($items) === count($names)) {
+        if(count($items) === count($names) || !$throw) {
             return array_values($items);
         }
 
-        if($throw) {
-            $notExists = array_diff($names, array_keys($items));
-            throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
-        }
-        return array_values($items);
+        $notExists = array_diff($names, array_keys($items));
+        throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
     }
 }
