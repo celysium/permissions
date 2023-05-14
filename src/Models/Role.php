@@ -36,9 +36,9 @@ class Role extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.models.user'),
+            config('permission.user.model'),
             'role_users',
-            'permission_id',
+            'role_id',
             config('permission.user.foreign_key')
         );
     }
