@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use RoleStatus;
 
 /**
  * @property integer $id
@@ -28,7 +29,7 @@ trait Permissions
             'role_users',
             config('permission.user.foreign_key'),
             'role_id'
-        );
+        )->where('roles.status', RoleStatus::Active);
     }
 
     /**
@@ -81,7 +82,7 @@ trait Permissions
      */
     public function allowsRoles(): array
     {
-        return $this->roles()->pluck('name')->toArray();
+        return $this->roles()->where('roles.status', RoleStatus::Active)->pluck('name')->toArray();
     }
 
     /**
