@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use RoleStatus;
+use Celysium\Permission\Enumerations\RoleStatus;
 
 /**
  * @property integer $id
