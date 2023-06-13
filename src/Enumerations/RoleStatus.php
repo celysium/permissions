@@ -1,6 +1,6 @@
 <?php
 
-
+namespace Celysium\Permission\Enumerations;
 
 enum RoleStatus: int
 {
