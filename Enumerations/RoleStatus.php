@@ -4,6 +4,6 @@
 
 enum RoleStatus: int
 {
-    case Active = 1;
-    case Inactive = 0;
+    case ACTIVE = 1;
+    case INACTIVE = 0;
 }
