@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Cache;
  */
 class Role extends Model
 {
-    protected $fillable = ['name', 'title'];
+    protected $fillable = ['name', 'title', 'status'];
 
     public $timestamps = false;
 

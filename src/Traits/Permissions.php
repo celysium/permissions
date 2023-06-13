@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Celysium\Permission\Enumerations\RoleStatus;
 
 /**
  * @property integer $id
@@ -81,7 +82,7 @@ trait Permissions
      */
     public function allowsRoles(): array
     {
-        return $this->roles()->pluck('name')->toArray();
+        return $this->roles()->where('roles.status', RoleStatus::ACTIVE)->pluck('name')->toArray();
     }
 
     /**
