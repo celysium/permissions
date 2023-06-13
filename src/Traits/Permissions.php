@@ -29,7 +29,7 @@ trait Permissions
             'role_users',
             config('permission.user.foreign_key'),
             'role_id'
-        )->where('roles.status', RoleStatus::ACTIVE);
+        );
     }
 
     /**
