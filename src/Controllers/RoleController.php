@@ -61,6 +61,7 @@ class RoleController extends Controller
         $request->validate([
             'name'          => ['required', 'string', 'max:193', 'unique:roles,name'],
             'title'         => ['required', 'string', 'max:193', 'unique:roles,title'],
+            'status'        => ['required', 'boolean'],
             'permissions'   => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
@@ -92,6 +93,7 @@ class RoleController extends Controller
         $request->validate([
             'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
             'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
+            'status'        => ['required', 'boolean'],
             'permissions'   => ['nullable', 'array'],
             'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
