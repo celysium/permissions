@@ -29,7 +29,7 @@ trait Permissions
             'role_users',
             config('permission.user.foreign_key'),
             'role_id'
-        )->where('roles.status', RoleStatus::Active);
+        )->where('roles.status', RoleStatus::ACTIVE);
     }
 
     /**
@@ -82,7 +82,7 @@ trait Permissions
      */
     public function allowsRoles(): array
     {
-        return $this->roles()->where('roles.status', RoleStatus::Active)->pluck('name')->toArray();
+        return $this->roles()->where('roles.status', RoleStatus::ACTIVE)->pluck('name')->toArray();
     }
 
     /**
