@@ -133,17 +133,22 @@ class RoleController extends Controller
 
     /**
      * @param Role $role
-     * @param array $permissions
+     * @param Request $request
      * @param callable|null $authorize
-     * @return Role
+     * @return Role|JsonResponse
      */
-    public function syncPermissions(Role $role, array $permissions, callable $authorize = null): Role|JsonResponse
+    public function syncPermissions(Role $role, Request $request, callable $authorize = null): Role|JsonResponse
     {
         if ($authorize) {
             $authorize();
         }
 
-        $role->permissions()->sync($permissions);
+        $request->validate([
+            'roles'   => ['required', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+        ]);
+
+        $role->permissions()->sync($request->get('permissions'));
 
         return $role->refresh();
     }
