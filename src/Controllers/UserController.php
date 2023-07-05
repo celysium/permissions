@@ -68,10 +68,10 @@ class UserController extends Controller
     }
 
     /**
-     * @param string $model
+     * @param $model
      * @return bool
      */
-    protected function isPermissions(string $model): bool
+    protected function isPermissions($model): bool
     {
         return in_array(Permissions::class, class_uses_recursive($model));
     }
