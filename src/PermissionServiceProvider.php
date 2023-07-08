@@ -12,6 +12,8 @@ use Celysium\Permission\Repositories\Permission\PermissionRepository;
 use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
 use Celysium\Permission\Repositories\Role\RoleRepository;
 use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
+use Celysium\Permission\Repositories\User\UserRepository;
+use Celysium\Permission\Repositories\User\UserRepositoryInterface;
 use Celysium\Permission\Traits\Permissions;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
@@ -99,5 +101,6 @@ class PermissionServiceProvider extends ServiceProvider
     {
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
+        $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
     }
 }
