@@ -57,12 +57,17 @@ class UserController extends Controller
 
         $request->validate([
             'permissions'           => ['required', 'array'],
-            'permissions.*'         => ['integer', 'exists:permissions,id'],
+            'permissions.*.id'      => ['integer', 'exists:permissions,id'],
             'permissions.*.is_able' => ['required', 'boolean'],
         ]);
 
+        $permissions = [];
+        foreach ($request->get('permissions') as $permission) {
+            $permissions[$permission['id']] = $permission['is_able'];
+        }
+
         /** @var Permissions $user */
-        $user->permissions()->sync($request->get('permissions'));
+        $user->permissions()->sync($permissions);
 
         return $user;
     }
