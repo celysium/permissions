@@ -51,6 +51,7 @@ class RoleController extends Controller
      * @param Request $request
      * @param callable|null $authorize
      * @return Role|JsonResponse
+     * @throws ValidationException
      */
     public function store(Request $request, callable $authorize = null): Role|JsonResponse
     {
@@ -58,7 +59,7 @@ class RoleController extends Controller
             $authorize();
         }
 
-        $request->validate([
+        $this->validate($request, [
             'name'          => ['required', 'string', 'max:193', 'unique:roles,name'],
             'title'         => ['required', 'string', 'max:193', 'unique:roles,title'],
             'status'        => ['required', 'boolean'],
@@ -83,6 +84,7 @@ class RoleController extends Controller
      * @param Role $role
      * @param callable|null $authorize
      * @return Role|JsonResponse
+     * @throws ValidationException
      */
     public function update(Request $request, Role $role, callable $authorize = null): Role|JsonResponse
     {
@@ -90,7 +92,7 @@ class RoleController extends Controller
             $authorize();
         }
 
-        $request->validate([
+        $this->validate($request, [
             'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
             'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
             'status'        => ['required', 'boolean'],
@@ -136,6 +138,7 @@ class RoleController extends Controller
      * @param Request $request
      * @param callable|null $authorize
      * @return Role|JsonResponse
+     * @throws ValidationException
      */
     public function syncPermissions(Role $role, Request $request, callable $authorize = null): Role|JsonResponse
     {
@@ -143,7 +146,7 @@ class RoleController extends Controller
             $authorize();
         }
 
-        $request->validate([
+        $this->validate($request, [
             'permissions'   => ['required', 'array'],
             'permissions.*' => ['integer', 'exists:roles,id'],
         ]);

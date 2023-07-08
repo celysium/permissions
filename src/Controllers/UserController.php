@@ -27,7 +27,7 @@ class UserController extends Controller
             throw new Exception('model user dont use trait Permissions');
         }
 
-        $request->validate([
+        $this->validate($request, [
             'roles'   => ['required', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
@@ -55,7 +55,7 @@ class UserController extends Controller
             throw new Exception('model user dont use trait Permissions');
         }
 
-        $request->validate([
+        $this->validate($request, [
             'permissions'           => ['required', 'array'],
             'permissions.*.id'      => ['integer', 'exists:permissions,id'],
             'permissions.*.is_able' => ['required', 'boolean'],

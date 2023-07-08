@@ -51,14 +51,16 @@ class PermissionController extends Controller
      * @param Request $request
      * @param callable|null $authorize
      * @return Permission|JsonResponse
+     * @throws ValidationException
      */
-    public function store(Request $request, callable $authorize = null): Permission|JsonResponse
+    public function store(Request  $request,
+                          callable $authorize = null): Permission|JsonResponse
     {
         if ($authorize) {
             $authorize();
         }
 
-        $request->validate([
+        $this->validate($request, [
             'name'    => ['required', 'string', 'max:193', 'unique:permissions,name'],
             'title'   => ['required', 'string', 'max:193', 'unique:permissions,title'],
             'roles'   => ['nullable', 'array'],
@@ -83,6 +85,7 @@ class PermissionController extends Controller
      * @param Permission $permission
      * @param callable|null $authorize
      * @return Permission|JsonResponse
+     * @throws ValidationException
      */
     public function update(Request $request, Permission $permission, callable $authorize = null): Permission|JsonResponse
     {
@@ -90,7 +93,7 @@ class PermissionController extends Controller
             $authorize();
         }
 
-        $request->validate([
+        $this->validate($request, [
             'name'    => ['required', 'string', 'max:193', 'unique:permissions,name,' . $permission->id],
             'title'   => ['required', 'string', 'max:193', 'unique:permissions,title,' . $permission->id],
             'roles'   => ['nullable', 'array'],
