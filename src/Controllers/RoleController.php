@@ -144,8 +144,8 @@ class RoleController extends Controller
         }
 
         $request->validate([
-            'roles'   => ['required', 'array'],
-            'roles.*' => ['integer', 'exists:roles,id'],
+            'permissions'   => ['required', 'array'],
+            'permissions.*' => ['integer', 'exists:roles,id'],
         ]);
 
         $role->permissions()->sync($request->get('permissions'));
