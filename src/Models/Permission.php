@@ -18,7 +18,16 @@ use Illuminate\Support\Facades\Cache;
  */
 class Permission extends Model
 {
-    protected $fillable = ['name', 'title'];
+    protected $fillable = [
+        'service',
+        'name',
+        'title',
+        'route'
+    ];
+
+    protected $casts = [
+        'route' => 'array'
+    ];
 
     public $timestamps = false;
 
@@ -47,7 +56,7 @@ class Permission extends Model
         /** @var Permissions $user */
         foreach ($this->users as $user) {
             $key = str_replace('{user_id}', $user->id, config("permission.cache.key_permission"));
-            if(Cache::has($key)) {
+            if (Cache::has($key)) {
                 $user->cachePermissions(true);
             }
         }
@@ -66,7 +75,7 @@ class Permission extends Model
             ->pluck('id', 'name')
             ->toArray();
 
-        if(count($items) === count($names) || !$throw) {
+        if (count($items) === count($names) || !$throw) {
             return array_values($items);
         }
 

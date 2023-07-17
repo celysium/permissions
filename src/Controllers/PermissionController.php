@@ -61,10 +61,14 @@ class PermissionController extends Controller
         }
 
         $this->validate($request, [
-            'name'    => ['required', 'string', 'max:193', 'unique:permissions,name'],
-            'title'   => ['required', 'string', 'max:193', 'unique:permissions,title'],
-            'roles'   => ['nullable', 'array'],
-            'roles.*' => ['integer', 'exists:roles,id'],
+            'service'        => ['required', 'string', 'max:193'],
+            'name'           => ['required', 'string', 'max:193'],
+            'title'          => ['required', 'string', 'max:193'],
+            'routes'         => ['required', 'array'],
+            'routes.url'     => ['required', 'string'],
+            'routes.methods' => ['required', 'array'],
+            'roles'          => ['nullable', 'array'],
+            'roles.*'        => ['integer', 'exists:roles,id'],
         ]);
 
         DB::beginTransaction();
@@ -72,7 +76,7 @@ class PermissionController extends Controller
         /** @var Permission $permission */
         $permission = $this->repository->store($request->all());
 
-        if($roles = $request->get('roles')) {
+        if ($roles = $request->get('roles')) {
             $permission->roles()->sync($roles);
         }
         DB::commit();
@@ -94,8 +98,13 @@ class PermissionController extends Controller
         }
 
         $this->validate($request, [
-            'name'    => ['required', 'string', 'max:193', 'unique:permissions,name,' . $permission->id],
-            'title'   => ['required', 'string', 'max:193', 'unique:permissions,title,' . $permission->id],
+
+            'service'        => ['required', 'string', 'max:193'],
+            'name'    => ['required', 'string', 'max:193'],
+            'title'   => ['required', 'string', 'max:193'],
+            'routes'         => ['required', 'string', 'max:193', 'unique:permissions,title'],
+            'routes.url'     => ['required', 'string'],
+            'routes.methods' => ['required', 'array'],
             'roles'   => ['nullable', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
@@ -105,7 +114,7 @@ class PermissionController extends Controller
         /** @var Permission $permission */
         $permission = $this->repository->update($permission, $request->all());
 
-        if($roles = $request->get('roles')) {
+        if ($roles = $request->get('roles')) {
             $permission->roles()->sync($roles);
         }
         DB::commit();
