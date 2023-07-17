@@ -100,7 +100,7 @@ trait Permissions
             ->remember(
                 $key,
                 config('permission.cache.lifetime'),
-                fn () => $this->allowsRoles()
+                fn() => $this->allowsRoles()
             );
     }
 
@@ -147,38 +147,34 @@ trait Permissions
      */
     public function allowsPermissions(): array
     {
-        $permissions = [];
+        $permissions = collect();
         /** @var Model $this */
         $withRoles = $this->load('roles.permissions');
         /** @var self $withRoles */
         foreach ($withRoles->roles as $role) {
-            $permissions = array_merge($permissions, $role->permissions->pluck('name')->toArray());
-        }
-        $permissions = array_unique($permissions);
-
-        $customPermissions = $this->permissions()
-            ->select('permissions.name')
-            ->pluck('permission_users.is_able', 'permissions.name')
-            ->toArray();
-
-        if(count($customPermissions)) {
-            $permissions = array_merge(
-                $permissions,
-                array_keys(
-                    array_filter($customPermissions)
-                )
-            );
-            $permissions = array_diff(
-                $permissions,
-                array_keys(
-                    array_filter(
-                        $customPermissions,
-                        fn($permission) => !$permission)
-                )
-            );
+            foreach ($role->permissions as $permission) {
+                if (!$permissions->contains('id', $permission->id)) {
+                    $permissions->push($permission->toArray());
+                }
+            }
         }
 
-        return $permissions;
+        $customPermissions = $this->permissions;
+
+        if ($customPermissions->count()) {
+            $extra = $customPermissions->where('is_able', 1);
+            foreach ($extra as $permission) {
+                if (!$permissions->contains('id', $permission->id)) {
+                    $permissions->push($permission->toArray());
+                }
+            }
+
+            $reduction = $customPermissions->where('is_able', 0)->pluck('id');
+
+            $permissions = $permissions->whereNotIn('id', $reduction);
+        }
+
+        return $permissions->toArray();
     }
 
     /**
@@ -196,7 +192,7 @@ trait Permissions
             ->remember(
                 $key,
                 config('permission.cache.lifetime'),
-                fn () => $this->allowsPermissions()
+                fn() => $this->allowsPermissions()
             );
     }
 
@@ -252,6 +248,7 @@ trait Permissions
      */
     public function hasPermissions(...$names): bool
     {
-        return (bool) count(array_intersect($names, $this->cachePermissions()));
+        $allows = array_map(fn($permission) => $permission['name'], $this->cachePermissions());
+        return (bool)count(array_intersect($names, $allows));
     }
 }

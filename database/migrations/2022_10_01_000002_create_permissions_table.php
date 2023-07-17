@@ -15,8 +15,11 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
+            $table->string('service')->nullable();
             $table->string('name')->unique();
             $table->string('title');
+            $table->json('route')->nullable();
+            $table->unique(['service', 'name']);
         });
 
         Schema::create('permission_roles', function (Blueprint $table) {
