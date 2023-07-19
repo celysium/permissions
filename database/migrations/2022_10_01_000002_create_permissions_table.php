@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
             $table->string('service')->nullable();
-            $table->string('name')->unique();
-            $table->string('title');
+            $table->string('name');
+            $table->string('title')->nullable();
             $table->json('route')->nullable();
             $table->unique(['service', 'name']);
         });

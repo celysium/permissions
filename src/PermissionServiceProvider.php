@@ -16,6 +16,7 @@ use Celysium\Permission\Traits\Permissions;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Celysium\Permission\Middleware\CheckRoutePermission;
 
 class PermissionServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,9 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerMiddlewares();
 
         $this->registerGates();
+
+        $this->app['router']->aliasMiddleware('check-permissions', CheckRoutePermission::class);
+        $this->app['router']->pushMiddlewareToGroup('api', CheckRoutePermission::class);
     }
 
     public function register()
