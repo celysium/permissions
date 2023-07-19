@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 class Permission extends Model
 {
     protected $fillable = [
+        'id',
         'service',
         'name',
         'title',

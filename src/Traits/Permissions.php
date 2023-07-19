@@ -154,26 +154,23 @@ trait Permissions
         foreach ($withRoles->roles as $role) {
             foreach ($role->permissions as $permission) {
                 if (!$permissions->contains('id', $permission->id)) {
-                    $permissions->push($permission->toArray());
+                    $permissions->push($permission->only($permission->getFillable()));
                 }
             }
         }
 
-        $customPermissions = $this->permissions;
-
-        if ($customPermissions->count()) {
-            $extra = $customPermissions->where('is_able', 1);
+        if ($this->permissions()->count()) {
+            $extra = $this->permissions()->where('is_able', 1)->get();
             foreach ($extra as $permission) {
                 if (!$permissions->contains('id', $permission->id)) {
-                    $permissions->push($permission->toArray());
+                    $permissions->push($permission->only($permission->getFillable()));
                 }
             }
 
-            $reduction = $customPermissions->where('is_able', 0)->pluck('id');
+            $reduction = $this->permissions()->where('is_able', 0)->pluck('id')->toArray();
 
-            $permissions = $permissions->whereNotIn('id', $reduction);
+            $permissions = $permissions->whereNotIn('id', [$reduction]);
         }
-
         return $permissions->toArray();
     }
 
