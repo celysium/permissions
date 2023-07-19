@@ -33,7 +33,6 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerGates();
 
         $this->app['router']->aliasMiddleware('check-permissions', CheckRoutePermission::class);
-        $this->app['router']->pushMiddlewareToGroup('api', CheckRoutePermission::class);
     }
 
     public function register()
