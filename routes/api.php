@@ -10,7 +10,7 @@ Route::middleware('api')->prefix('api')->group(function () {
     Route::name('permission')->middleware(config('permission.route_middlewares'))->group(function () {
 
         Route::apiResource('/roles', RoleController::class);
-        Route::apiResource('/permissions', PermissionController::class);
+        Route::apiResource('/permissions', PermissionController::class)->except(['store', 'destroy']);
 
         Route::name('users')->prefix('users')->group(function () {
             Route::post('/{id}/roles', [UserController::class, 'roles'])->name('roles');
