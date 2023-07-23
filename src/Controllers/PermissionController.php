@@ -62,12 +62,10 @@ class PermissionController extends Controller
 
         $this->validate($request, [
 
-            'service'        => ['required', 'string', 'max:193'],
-            'name'    => ['required', 'string', 'max:193'],
+            'service' => ['prohibited'],
+            'name'    => ['prohibited'],
             'title'   => ['required', 'string', 'max:193'],
-            'routes'         => ['required', 'string', 'max:193', 'unique:permissions,title'],
-            'routes.url'     => ['required', 'string'],
-            'routes.methods' => ['required', 'array'],
+            'routes'  => ['prohibited'],
             'roles'   => ['nullable', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
