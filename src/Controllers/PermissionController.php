@@ -49,43 +49,6 @@ class PermissionController extends Controller
 
     /**
      * @param Request $request
-     * @param callable|null $authorize
-     * @return Permission|JsonResponse
-     * @throws ValidationException
-     */
-    public function store(Request  $request,
-                          callable $authorize = null): Permission|JsonResponse
-    {
-        if ($authorize) {
-            $authorize();
-        }
-
-        $this->validate($request, [
-            'service'        => ['required', 'string', 'max:193'],
-            'name'           => ['required', 'string', 'max:193'],
-            'title'          => ['required', 'string', 'max:193'],
-            'routes'         => ['required', 'array'],
-            'routes.url'     => ['required', 'string'],
-            'routes.methods' => ['required', 'array'],
-            'roles'          => ['nullable', 'array'],
-            'roles.*'        => ['integer', 'exists:roles,id'],
-        ]);
-
-        DB::beginTransaction();
-
-        /** @var Permission $permission */
-        $permission = $this->repository->store($request->all());
-
-        if ($roles = $request->get('roles')) {
-            $permission->roles()->sync($roles);
-        }
-        DB::commit();
-
-        return $permission;
-    }
-
-    /**
-     * @param Request $request
      * @param Permission $permission
      * @param callable|null $authorize
      * @return Permission|JsonResponse
@@ -99,12 +62,10 @@ class PermissionController extends Controller
 
         $this->validate($request, [
 
-            'service'        => ['required', 'string', 'max:193'],
-            'name'    => ['required', 'string', 'max:193'],
+            'service' => ['prohibited'],
+            'name'    => ['prohibited'],
             'title'   => ['required', 'string', 'max:193'],
-            'routes'         => ['required', 'string', 'max:193', 'unique:permissions,title'],
-            'routes.url'     => ['required', 'string'],
-            'routes.methods' => ['required', 'array'],
+            'routes'  => ['prohibited'],
             'roles'   => ['nullable', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ]);
@@ -121,26 +82,5 @@ class PermissionController extends Controller
 
         return $permission;
 
-    }
-
-    /**
-     * @param Permission $permission
-     * @param callable|null $authorize
-     * @return bool|JsonResponse
-     * @throws ValidationException
-     */
-    public function destroy(Permission $permission, callable $authorize = null): bool|JsonResponse
-    {
-        if ($authorize) {
-            $authorize();
-        }
-
-        if ($permission->roles()->count() || $permission->users()->count()) {
-            throw ValidationException::withMessages([
-                'id' => [__('permission::messages.permission_cannot_delete')]
-            ]);
-        }
-
-        return $permission->delete();
     }
 }
