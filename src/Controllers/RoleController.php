@@ -79,7 +79,11 @@ class RoleController extends Controller
         /** @var Role $role */
         $role = $this->repository->store($request->except('permissions'));
 
-        return $this->assignPermissions($request, $role);
+        $role = $this->assignPermissions($request, $role);
+
+        DB::commit();
+
+        return $role;
     }
 
     /**
@@ -98,7 +102,7 @@ class RoleController extends Controller
         $this->validate($request, [
             'name'                 => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
             'title'                => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
-            'status'               => ['required', 'boolean'],
+            'status'               => ['nullable', 'boolean'],
             'permissions'          => ['nullable', 'array'],
             'permissions.all'      => ['nullable', 'array'],
             'permissions.only'     => ['nullable', 'array'],
@@ -114,7 +118,11 @@ class RoleController extends Controller
         /** @var Role $role */
         $role = $this->repository->update($role, $request->except('permissions'));
 
-        return $this->assignPermissions($request, $role);
+        $role = $this->assignPermissions($request, $role);
+
+        DB::commit();
+
+        return $role;
     }
 
     /**
@@ -152,11 +160,17 @@ class RoleController extends Controller
         }
 
         $this->validate($request, [
-            'permissions'   => ['required', 'array'],
-            'permissions.*' => ['integer', 'exists:roles,id'],
+            'permissions'          => ['required', 'array'],
+            'permissions.all'      => ['nullable', 'array'],
+            'permissions.only'     => ['nullable', 'array'],
+            'permissions.only.*'   => ['integer', 'exists:permissions,id'],
+            'permissions.except'   => ['nullable', 'array'],
+            'permissions.except.*' => ['integer', 'exists:permissions,id'],
+            'permissions.append'   => ['nullable', 'array'],
+            'permissions.append.*' => ['integer', 'exists:permissions,id']
         ]);
 
-        $role->permissions()->sync($request->get('permissions'));
+        $role = $this->assignPermissions($request, $role);
 
         return $role->refresh();
     }
@@ -191,8 +205,6 @@ class RoleController extends Controller
 
             $role->permissions()->syncWithoutDetaching($permissions);
         }
-
-        DB::commit();
 
         return $role;
     }
