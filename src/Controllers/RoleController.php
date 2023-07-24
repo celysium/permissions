@@ -3,6 +3,7 @@
 namespace Celysium\Permission\Controllers;
 
 use Celysium\Base\Controller\Controller;
+use Celysium\Permission\Models\Permission;
 use Celysium\Permission\Models\Role;
 use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -60,23 +61,25 @@ class RoleController extends Controller
         }
 
         $this->validate($request, [
-            'name'          => ['required', 'string', 'max:193', 'unique:roles,name'],
-            'title'         => ['required', 'string', 'max:193', 'unique:roles,title'],
-            'status'        => ['required', 'boolean'],
-            'permissions'   => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'exists:permissions,id'],
+            'name'                 => ['required', 'string', 'max:193', 'unique:roles,name'],
+            'title'                => ['required', 'string', 'max:193', 'unique:roles,title'],
+            'status'               => ['required', 'boolean'],
+            'permissions'          => ['nullable', 'array'],
+            'permissions.all'      => ['nullable', 'array'],
+            'permissions.only'     => ['nullable', 'array'],
+            'permissions.only.*'   => ['integer', 'exists:permissions,id'],
+            'permissions.except'   => ['nullable', 'array'],
+            'permissions.except.*' => ['integer', 'exists:permissions,id'],
+            'permissions.append'   => ['nullable', 'array'],
+            'permissions.append.*' => ['integer', 'exists:permissions,id']
         ]);
 
         DB::beginTransaction();
 
         /** @var Role $role */
-        $role = $this->repository->store($request->all());
+        $role = $this->repository->store($request->except('permissions'));
 
-        $role->permissions()->sync($request->get('permissions'));
-
-        DB::commit();
-
-        return $role;
+        return $this->assignPermissions($request, $role);
     }
 
     /**
@@ -93,23 +96,25 @@ class RoleController extends Controller
         }
 
         $this->validate($request, [
-            'name'          => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
-            'title'         => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
-            'status'        => ['required', 'boolean'],
-            'permissions'   => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'exists:permissions,id'],
+            'name'                 => ['required', 'string', 'max:193', 'unique:roles,name,' . $role->id],
+            'title'                => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
+            'status'               => ['required', 'boolean'],
+            'permissions'          => ['nullable', 'array'],
+            'permissions.all'      => ['nullable', 'array'],
+            'permissions.only'     => ['nullable', 'array'],
+            'permissions.only.*'   => ['integer', 'exists:permissions,id'],
+            'permissions.except'   => ['nullable', 'array'],
+            'permissions.except.*' => ['integer', 'exists:permissions,id'],
+            'permissions.append'   => ['nullable', 'array'],
+            'permissions.append.*' => ['integer', 'exists:permissions,id']
         ]);
 
         DB::beginTransaction();
 
         /** @var Role $role */
-        $role = $this->repository->update($role, $request->all());
+        $role = $this->repository->update($role, $request->except('permissions'));
 
-        $role->permissions()->sync($request->get('permissions'));
-
-        DB::commit();
-
-        return $role;
+        return $this->assignPermissions($request, $role);
     }
 
     /**
@@ -154,5 +159,41 @@ class RoleController extends Controller
         $role->permissions()->sync($request->get('permissions'));
 
         return $role->refresh();
+    }
+
+    /**
+     * @param Request $request
+     * @param Role $role
+     * @return Role
+     */
+    public function assignPermissions(Request $request, Role $role): Role
+    {
+        if ($request->has('permissions.all')) {
+            $permissions = Permission::query()->pluck('id')->toArray();
+
+            $role->permissions()->sync($permissions);
+        }
+
+        if ($request->has('permissions.only')) {
+            $permissions = $request->input('permissions.only');
+
+            $role->permissions()->sync($permissions);
+        }
+
+        if ($request->has('permissions.except')) {
+            $permissions = $request->input('permissions.except');
+
+            $role->permissions()->detach($permissions);
+        }
+
+        if ($request->has('permissions.append')) {
+            $permissions = $request->input('permissions.append');
+
+            $role->permissions()->syncWithoutDetaching($permissions);
+        }
+
+        DB::commit();
+
+        return $role;
     }
 }
