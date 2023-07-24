@@ -65,7 +65,7 @@ class RoleController extends Controller
             'title'                => ['required', 'string', 'max:193', 'unique:roles,title'],
             'status'               => ['required', 'boolean'],
             'permissions'          => ['nullable', 'array'],
-            'permissions.all'      => ['nullable', 'array'],
+            'permissions.all'      => ['nullable', 'boolean'],
             'permissions.only'     => ['nullable', 'array'],
             'permissions.only.*'   => ['integer', 'exists:permissions,id'],
             'permissions.except'   => ['nullable', 'array'],
@@ -104,7 +104,7 @@ class RoleController extends Controller
             'title'                => ['required', 'string', 'max:193', 'unique:roles,title,' . $role->id],
             'status'               => ['nullable', 'boolean'],
             'permissions'          => ['nullable', 'array'],
-            'permissions.all'      => ['nullable', 'array'],
+            'permissions.all'      => ['nullable', 'boolean'],
             'permissions.only'     => ['nullable', 'array'],
             'permissions.only.*'   => ['integer', 'exists:permissions,id'],
             'permissions.except'   => ['nullable', 'array'],
@@ -161,7 +161,7 @@ class RoleController extends Controller
 
         $this->validate($request, [
             'permissions'          => ['required', 'array'],
-            'permissions.all'      => ['nullable', 'array'],
+            'permissions.all'      => ['nullable', 'boolean'],
             'permissions.only'     => ['nullable', 'array'],
             'permissions.only.*'   => ['integer', 'exists:permissions,id'],
             'permissions.except'   => ['nullable', 'array'],
@@ -182,7 +182,7 @@ class RoleController extends Controller
      */
     public function assignPermissions(Request $request, Role $role): Role
     {
-        if ($request->has('permissions.all')) {
+        if ($request->has('permissions.all') && $request->input('permissions.all')) {
             $permissions = Permission::query()->pluck('id')->toArray();
 
             $role->permissions()->sync($permissions);
