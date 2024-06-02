@@ -51,7 +51,7 @@ trait Permissions
     {
         $this->roles()->syncWithoutDetaching($ids);
 
-        return $this->cacheRole(true);
+        return $this->cacheRoles(true);
     }
 
     /**
@@ -73,7 +73,7 @@ trait Permissions
     {
         $this->roles()->detach($ids);
 
-        return $this->cacheRole(true);
+        return $this->cacheRoles(true);
     }
 
     /**
@@ -90,7 +90,7 @@ trait Permissions
      * @param bool $force
      * @return array
      */
-    public function cacheRole(bool $force = false): array
+    public function cacheRoles(bool $force = false): array
     {
         $key = str_replace('{user_id}', $this->id, config("permission.cache.key_role"));
         if ($force) {
@@ -111,7 +111,7 @@ trait Permissions
      */
     public function hasRoles(...$names): bool
     {
-        return (bool)count(array_intersect($names, $this->cacheRole()));
+        return (bool)count(array_intersect($names, $this->cacheRoles()));
     }
 
     /**
@@ -121,7 +121,7 @@ trait Permissions
      */
     public function onlyRole(string $name): bool
     {
-        $roles = $this->cacheRole();
+        $roles = $this->cacheRoles();
         return count($roles) === 1 && current($roles) === $name;
     }
 

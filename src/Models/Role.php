@@ -49,7 +49,7 @@ class Role extends Model
         foreach ($this->users as $user) {
             $key = str_replace('{user_id}', $user->id, config("permission.cache.key_role"));
             if(Cache::has($key)) {
-                $user->cacheRole(true);
+                $user->cacheRoles(true);
             }
         }
     }
