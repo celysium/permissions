@@ -16,14 +16,11 @@ use Celysium\Permission\Traits\Permissions;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Celysium\Permission\Middleware\CheckRoutePermission;
 
 class PermissionServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        $this->loadRoutes();
-
         $this->publishConfig();
 
         $this->loadMigrations();
@@ -31,8 +28,6 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerMiddlewares();
 
         $this->registerGates();
-
-        $this->app['router']->aliasMiddleware('check-permissions', CheckRoutePermission::class);
     }
 
     public function register()
@@ -42,11 +37,6 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerObservers();
 
         $this->registerRepositories();
-    }
-
-    public function loadRoutes()
-    {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
     }
 
     public function publishConfig()

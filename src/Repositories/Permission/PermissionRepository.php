@@ -2,7 +2,7 @@
 
 namespace Celysium\Permission\Repositories\Permission;
 
-use Celysium\Base\Repository\BaseRepository;
+use Celysium\Helper\Repository\BaseRepository;
 use Celysium\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Builder;
 

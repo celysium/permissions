@@ -2,7 +2,7 @@
 
 namespace Celysium\Permission\Repositories\Permission;
 
-use Celysium\Base\Repository\BaseRepositoryInterface;
+use Celysium\Helper\Repository\BaseRepositoryInterface;
 
 interface PermissionRepositoryInterface extends BaseRepositoryInterface
 {
