@@ -15,14 +15,11 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->string('service')->nullable();
             $table->string('name');
-            $table->string('title')->nullable();
-            $table->json('route')->nullable();
-            $table->unique(['service', 'name']);
+            $table->json('namespaces')->nullable();
         });
 
-        Schema::create('permission_roles', function (Blueprint $table) {
+        Schema::create('permission_role', function (Blueprint $table) {
 
             $table->unsignedBigInteger('permission_id');
             $table->foreign('permission_id')->references('id')->on('permissions')->onUpdate('cascade');
@@ -33,7 +30,7 @@ return new class extends Migration
             $table->unique(['permission_id', 'role_id']);
         });
 
-        Schema::create('permission_users', function (Blueprint $table) {
+        Schema::create('permission_user', function (Blueprint $table) {
 
             $userTable = config('permission.user.table');
             $userForeignKey = config('permission.user.foreign_key');
@@ -45,7 +42,7 @@ return new class extends Migration
 
             $table->$userType($userForeignKey);
             $table->foreign($userForeignKey)->references($userRelationId)->on($userTable)->onUpdate('cascade');
-            $table->boolean('is_able')->default(false);
+            $table->boolean('can');
 
             $table->unique([$userForeignKey, 'permission_id']);
         });
@@ -58,8 +55,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('permission_users');
-        Schema::dropIfExists('permission_roles');
+        Schema::dropIfExists('permission_user');
+        Schema::dropIfExists('permission_role');
         Schema::dropIfExists('permissions');
     }
 };

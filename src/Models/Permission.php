@@ -20,14 +20,12 @@ class Permission extends Model
 {
     protected $fillable = [
         'id',
-        'service',
         'name',
-        'title',
-        'route'
+        'namespaces',
     ];
 
     protected $casts = [
-        'route' => 'array'
+        'namespaces' => 'array'
     ];
 
     public $timestamps = false;
@@ -36,7 +34,7 @@ class Permission extends Model
     {
         return $this->belongsToMany(
             Role::class,
-            'permission_roles',
+            'permission_role',
             'permission_id',
             'role_id'
         );
@@ -46,20 +44,25 @@ class Permission extends Model
     {
         return $this->belongsToMany(
             config('permission.user.model'),
-            'permission_users',
+            'permission_user',
             'permission_id',
             config('permission.user.foreign_key')
         );
     }
 
-    public function refreshCache(): void
+    public function resetCacheUsers(): void
     {
         /** @var Permissions $user */
         foreach ($this->users as $user) {
-            $key = str_replace('{user_id}', $user->id, config("permission.cache.key_permission"));
-            if (Cache::has($key)) {
-                $user->cachePermissions(true);
-            }
+            $user->cachePermissions(true);
+        }
+    }
+
+    public function resetCacheRoles(): void
+    {
+        /** @var Role $role */
+        foreach ($this->roles as $role) {
+            Role::cachePermissions($role->name, true);
         }
     }
 

@@ -2,13 +2,13 @@
 
 return [
     'cache' => [
-        'driver'         => env('PERMISSION_CACHE_DRIVER', env('CACHE_DRIVER')),
-        'lifetime'       => env('PERMISSION_CACHE_LIFETIME', 60),
-        'key_permission' => "permission.{user_id}",
-        'key_role'       => "role.{user_id}",
+        'driver'              => env('PERMISSION_CACHE_DRIVER', env('CACHE_DRIVER')),
+        'lifetime'            => env('PERMISSION_CACHE_LIFETIME', 60),
+        'key_role_user'       => "role.permission.{user}",
+        'key_role_permission' => "role.permission.{role}",
+        'key_permission_user' => "role.permission.{user}",
     ],
-
-    'user' => [
+    'user'  => [
         'model'       => \App\Models\User::class,
         'table'       => 'users',
         'foreign_key' => 'user_id',

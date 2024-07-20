@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Celysium\Permission\Enumerations\RoleStatus;
 
 /**
  * @property integer $id
@@ -26,7 +25,7 @@ trait Permissions
         /** @var Model $this */
         return $this->belongsToMany(
             Role::class,
-            'role_users',
+            'role_user',
             config('permission.user.foreign_key'),
             'role_id'
         );
@@ -82,26 +81,22 @@ trait Permissions
      */
     public function allowsRoles(): array
     {
-        return $this->roles()->where('roles.status', RoleStatus::ACTIVE)->pluck('name')->toArray();
+        return $this->roles()->get(['name'])->pluck('name')->toArray();
     }
 
     /**
      * Cache roles user
-     * @param bool $force
+     * @param bool $refresh
      * @return array
      */
-    public function cacheRoles(bool $force = false): array
+    public function cacheRoles(bool $refresh = false): array
     {
-        $key = str_replace('{user_id}', $this->id, config("permission.cache.key_role"));
-        if ($force) {
+        $key = str_replace('{user}', $this->id, config("permission.cache.key_role_user"));
+        if ($refresh) {
             Cache::forget($key);
         }
         return Cache::store(config('permission.cache.driver'))
-            ->remember(
-                $key,
-                config('permission.cache.lifetime'),
-                fn() => $this->allowsRoles()
-            );
+            ->remember($key, config('permission.cache.lifetime'), fn() => $this->allowsRoles());
     }
 
     /**
@@ -115,17 +110,6 @@ trait Permissions
     }
 
     /**
-     * Check access just role user
-     * @param string $name
-     * @return bool
-     */
-    public function onlyRole(string $name): bool
-    {
-        $roles = $this->cacheRoles();
-        return count($roles) === 1 && current($roles) === $name;
-    }
-
-    /**
      * Get permissions user
      * @return BelongsToMany
      */
@@ -134,11 +118,47 @@ trait Permissions
         /** @var Model $this */
         return $this->belongsToMany(
             Permission::class,
-            'permission_users',
+            'permission_user',
             config('permission.user.foreign_key'),
             'permission_id'
         )
-            ->withPivot(['is_able']);
+            ->withPivot(['can']);
+    }
+
+    /**
+     * Get list permissions of user
+     * @return array
+     */
+    public function allowsCachePermissions(): array
+    {
+        $roles = $this->cacheRoles();
+        $permissions = [];
+        foreach ($roles as $role) {
+            $permissions = array_merge($permissions, Role::cachePermissions($role));
+        }
+
+        $customs = $this->cachePermissions();
+        foreach ($customs['allows'] as $name => $namespaces) {
+            $permissions[$name] = $namespaces;
+        }
+        foreach ($customs['denies'] as $name) {
+            unset($permissions[$name]);
+        }
+        return $permissions;
+    }
+
+    /**
+     * @param bool $refresh
+     * @return array
+     */
+    protected function cachePermissions(bool $refresh = false): array
+    {
+        $key = str_replace('{user}', $this->id, config("permission.cache.key_permission_user"));
+        if ($refresh) {
+            Cache::forget($key);
+        }
+        return Cache::store(config('permission.cache.driver'))
+            ->remember($key, config('permission.cache.lifetime'), fn() => $this->allowsPermissions());
     }
 
     /**
@@ -147,94 +167,63 @@ trait Permissions
      */
     public function allowsPermissions(): array
     {
-        $permissions = collect();
-        /** @var Model $this */
-        $withRoles = $this->load('roles.permissions');
-        /** @var self $withRoles */
-        foreach ($withRoles->roles as $role) {
-            foreach ($role->permissions as $permission) {
-                if (!$permissions->contains('id', $permission->id)) {
-                    $permissions->push($permission->only($permission->getFillable()));
-                }
-            }
-        }
+        $denies = $this->permissions()
+            ->where('can', false)
+            ->get(['name'])
+            ->pluck('name')
+            ->toArray();
 
-        if ($this->permissions()->count()) {
-            $extra = $this->permissions()->where('is_able', 1)->get();
-            foreach ($extra as $permission) {
-                if (!$permissions->contains('id', $permission->id)) {
-                    $permissions->push($permission->only($permission->getFillable()));
-                }
-            }
+        $allows = $this->permissions()
+            ->where('can', true)
+            ->get(['namespaces', 'name'])
+            ->pluck('namespaces', 'name')
+            ->toArray();
 
-            $reduction = $this->permissions()->where('is_able', 0)->pluck('id')->toArray();
-
-            $permissions = $permissions->whereNotIn('id', [$reduction]);
-        }
-        return $permissions->toArray();
-    }
-
-    /**
-     * Cache permissions user
-     * @param bool $force
-     * @return array
-     */
-    public function cachePermissions(bool $force = false): array
-    {
-        $key = str_replace('{user_id}', $this->id, config("permission.cache.key_permission"));
-        if ($force) {
-            Cache::forget($key);
-        }
-        return Cache::store(config('permission.cache.driver'))
-            ->remember(
-                $key,
-                config('permission.cache.lifetime'),
-                fn() => $this->allowsPermissions()
-            );
+        return compact('denies', 'allows');
     }
 
     /**
      * Assign permissions user
      * @param array $names
-     * @return array
+     * @return void
      */
-    public function attachPermissions(array $names): array
+    public function attachPermissions(array $names): void
     {
-        return $this->attachPermissionsById(Role::getIds($names));
+        $this->attachPermissionsById(Role::getIds($names));
     }
 
     /**
      * Assign permissions user
      * @param array $ids
-     * @return array
+     * @return void
      */
-    public function attachPermissionsById(array $ids): array
+    public function attachPermissionsById(array $ids): void
     {
         $this->permissions()->syncWithoutDetaching($ids);
 
-        return $this->cachePermissions(true);
+        $this->cachePermissions(true);
     }
 
     /**
      * Detach permissions  user
      * @param array $names
-     * @return array
+     * @return void
      */
-    public function detachPermissions(array $names): array
+    public function detachPermissions(array $names): void
     {
-        return $this->detachPermissionsById(Permission::getIds($names));
+        $this->detachPermissionsById(Permission::getIds($names));
     }
 
     /**
      * Detach permissions user
      * @param array $ids
-     * @return array
+     * @return void
      */
-    public function detachPermissionsById(array $ids): array
+    public function detachPermissionsById(array $ids): void
     {
         $this->permissions()->detach($ids);
 
-        return $this->cachePermissions(true);
+        $this->cachePermissions(true);
     }
 
     /**
@@ -245,7 +234,6 @@ trait Permissions
      */
     public function hasPermissions(...$names): bool
     {
-        $allows = array_map(fn($permission) => $permission['name'], $this->cachePermissions());
-        return (bool)count(array_intersect($names, $allows));
+        return (bool)count(array_intersect($names, array_keys($this->allowsCachePermissions())));
     }
 }
