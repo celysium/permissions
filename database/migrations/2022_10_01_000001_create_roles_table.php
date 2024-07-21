@@ -16,11 +16,9 @@ return new class extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('title');
-            $table->boolean('status');
         });
 
-        Schema::create('role_users', function (Blueprint $table) {
+        Schema::create('role_user', function (Blueprint $table) {
 
             $userTable = config('permission.user.table');
             $userForeignKey = config('permission.user.foreign_key');
@@ -44,7 +42,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('role_users');
+        Schema::dropIfExists('role_user');
         Schema::dropIfExists('roles');
     }
 };

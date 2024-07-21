@@ -2,6 +2,9 @@
 
 namespace Celysium\Permission;
 
+use Celysium\Permission\Commands\CreatePermission;
+use Celysium\Permission\Commands\CreateRole;
+use Celysium\Permission\Commands\SyncRoutes;
 use Celysium\Permission\Middleware\CheckPermission;
 use Celysium\Permission\Middleware\CheckRole;
 use Celysium\Permission\Models\Permission;
@@ -13,13 +16,17 @@ use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
 use Celysium\Permission\Repositories\Role\RoleRepository;
 use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
 use Celysium\Permission\Traits\Permissions;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class PermissionServiceProvider extends ServiceProvider
 {
-    public function boot()
+    /**
+     * @throws BindingResolutionException
+     */
+    public function boot(): void
     {
         $this->publishConfig();
 
@@ -30,28 +37,33 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerGates();
     }
 
-    public function register()
+    public function register(): void
     {
         $this->registerConfig();
 
         $this->registerObservers();
 
         $this->registerRepositories();
+
+        $this->registerCommands();
     }
 
-    public function publishConfig()
+    public function publishConfig(): void
     {
         $this->publishes([
             __DIR__ . '/../config/permission.php' => config_path('permission.php'),
         ], 'permission-config');
     }
 
-    public function loadMigrations()
+    public function loadMigrations(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
-    public function registerMiddlewares()
+    /**
+     * @throws BindingResolutionException
+     */
+    public function registerMiddlewares(): void
     {
         /** @var Router $router */
         $router = $this->app->make(Router::class);
@@ -59,7 +71,7 @@ class PermissionServiceProvider extends ServiceProvider
         $router->aliasMiddleware('role', CheckRole::class);
     }
 
-    public function registerConfig()
+    public function registerConfig(): void
     {
         $this->mergeConfigFrom(
             __DIR__ . '/../config/permission.php', 'permission'
@@ -67,7 +79,7 @@ class PermissionServiceProvider extends ServiceProvider
 
     }
 
-    protected function registerGates()
+    protected function registerGates(): void
     {
         Gate::define('role', function ($user, string $role) {
             /** @var Permissions $user */
@@ -80,7 +92,7 @@ class PermissionServiceProvider extends ServiceProvider
         });
     }
 
-    public function registerObservers()
+    public function registerObservers(): void
     {
         $this->booting(function () {
             Permission::observe([PermissionObserver::class]);
@@ -88,9 +100,18 @@ class PermissionServiceProvider extends ServiceProvider
         });
     }
 
-    public function registerRepositories()
+    public function registerRepositories(): void
     {
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
+    }
+
+    public function registerCommands(): void
+    {
+        $this->commands([
+            CreatePermission::class,
+            CreateRole::class,
+            SyncRoutes::class,
+        ]);
     }
 }

@@ -8,16 +8,18 @@ class RoleObserver
 {
     public function created(Role $role): void
     {
-        $role->refreshCache();
+        Role::cachePermissions($role->name, true);
     }
 
     public function updated(Role $role): void
     {
-        $role->refreshCache();
+        $role->resetCacheUsers();
+        Role::cachePermissions($role->name, true);
     }
 
     public function deleted(Role $role): void
     {
-        $role->refreshCache();
+        $role->resetCacheUsers();
+        Role::cachePermissions($role->name, true);
     }
 }
