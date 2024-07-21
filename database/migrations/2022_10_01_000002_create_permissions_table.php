@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->json('namespaces')->nullable();
         });
 
         Schema::create('permission_role', function (Blueprint $table) {

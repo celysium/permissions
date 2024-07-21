@@ -138,11 +138,11 @@ trait Permissions
         }
 
         $customs = $this->cachePermissions();
-        foreach ($customs['allows'] as $name => $namespaces) {
-            $permissions[$name] = $namespaces;
+        if (count($customs['allows'])) {
+            $permissions = array_merge($permissions, $customs['allows']);
         }
-        foreach ($customs['denies'] as $name) {
-            unset($permissions[$name]);
+        if (count($customs['denies'])) {
+            $permissions = array_diff($permissions, $customs['denies']);
         }
         return $permissions;
     }
@@ -175,8 +175,8 @@ trait Permissions
 
         $allows = $this->permissions()
             ->where('can', true)
-            ->get(['namespaces', 'name'])
-            ->pluck('namespaces', 'name')
+            ->get(['name'])
+            ->pluck('name')
             ->toArray();
 
         return compact('denies', 'allows');
@@ -234,6 +234,6 @@ trait Permissions
      */
     public function hasPermissions(...$names): bool
     {
-        return (bool)count(array_intersect($names, array_keys($this->allowsCachePermissions())));
+        return (bool)count(array_intersect($names, $this->allowsCachePermissions()));
     }
 }

@@ -24,7 +24,7 @@ trait Role
     public function allowPermissions(string $name): array
     {
         $role = RoleModel::with('permissions')->where('name', $name)->first();
-        return $role?->permissions->pluck('namespaces', 'name')->toArray();
+        return $role?->permissions()->get(['name'])->pluck('name')->toArray();
     }
 
     /**

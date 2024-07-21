@@ -2,6 +2,9 @@
 
 namespace Celysium\Permission;
 
+use Celysium\Permission\Commands\CreatePermission;
+use Celysium\Permission\Commands\CreateRole;
+use Celysium\Permission\Commands\SyncRoutes;
 use Celysium\Permission\Middleware\CheckPermission;
 use Celysium\Permission\Middleware\CheckRole;
 use Celysium\Permission\Models\Permission;
@@ -13,12 +16,16 @@ use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
 use Celysium\Permission\Repositories\Role\RoleRepository;
 use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
 use Celysium\Permission\Traits\Permissions;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class PermissionServiceProvider extends ServiceProvider
 {
+    /**
+     * @throws BindingResolutionException
+     */
     public function boot(): void
     {
         $this->publishConfig();
@@ -37,6 +44,8 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerObservers();
 
         $this->registerRepositories();
+
+        $this->registerCommands();
     }
 
     public function publishConfig(): void
@@ -51,6 +60,9 @@ class PermissionServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
+    /**
+     * @throws BindingResolutionException
+     */
     public function registerMiddlewares(): void
     {
         /** @var Router $router */
@@ -92,5 +104,14 @@ class PermissionServiceProvider extends ServiceProvider
     {
         $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
+    }
+
+    public function registerCommands(): void
+    {
+        $this->commands([
+            CreatePermission::class,
+            CreateRole::class,
+            SyncRoutes::class,
+        ]);
     }
 }

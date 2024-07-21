@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * @property integer $id
  * @property string $name
- * @property string $title
+ * @property array $namespaces
  * @property Collection $roles
  * @property Collection $users
  */
@@ -21,11 +21,6 @@ class Permission extends Model
     protected $fillable = [
         'id',
         'name',
-        'namespaces',
-    ];
-
-    protected $casts = [
-        'namespaces' => 'array'
     ];
 
     public $timestamps = false;
@@ -38,6 +33,11 @@ class Permission extends Model
             'permission_id',
             'role_id'
         );
+    }
+
+    public function getNamespacesAttribute(): array
+    {
+        return explode('.', $this->name);
     }
 
     public function users(): BelongsToMany
