@@ -134,7 +134,7 @@ trait Permissions
         $roles = $this->cacheRoles();
         $permissions = [];
         foreach ($roles as $role) {
-            $permissions = array_merge($permissions, Role::cachePermissions($role));
+            $permissions = array_merge($permissions, Role::cachePermissionsByName($role));
         }
 
         $customs = $this->cachePermissions();

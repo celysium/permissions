@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * @property integer $id
@@ -62,7 +61,7 @@ class Permission extends Model
     {
         /** @var Role $role */
         foreach ($this->roles as $role) {
-            Role::cachePermissions($role->name, true);
+            $role->cachePermissions(true);
         }
     }
 
