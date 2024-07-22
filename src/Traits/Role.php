@@ -32,7 +32,10 @@ trait Role
     public static function allowPermissionsByName(string $name): array
     {
         $role = RoleModel::with('permissions')->where('name', $name)->first();
-        return $role?->permissions()->get(['name'])->pluck('name')->toArray();
+        if(empty($role)){
+            return [];
+        }
+        return $role->permissions()->get(['name'])->pluck('name')->toArray();
     }
 
     /**
