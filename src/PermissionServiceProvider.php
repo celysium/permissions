@@ -30,7 +30,7 @@ class PermissionServiceProvider extends ServiceProvider
     {
         $this->publishConfig();
 
-        $this->loadMigrations();
+        $this->publishMigrations();
 
         $this->registerMiddlewares();
 
@@ -55,9 +55,11 @@ class PermissionServiceProvider extends ServiceProvider
         ], 'permission-config');
     }
 
-    public function loadMigrations(): void
+    public function publishMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->publishesMigrations([
+            __DIR__ . '/../database/migrations', database_path('migrations')
+        ]);
     }
 
     /**
