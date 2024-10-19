@@ -1,0 +1,12 @@
+services:
+
+    # PHP Service
+    permissions:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: permissions
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./:/var/www
