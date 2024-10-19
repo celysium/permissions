@@ -16,7 +16,7 @@ class CheckPermission
      *
      * @param Request $request
      * @param Closure $next
-     * @param $role
+     * @param $permission
      * @return Response|RedirectResponse
      * @throws AuthorizationException
      */
