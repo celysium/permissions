@@ -14,5 +14,8 @@ return [
         'foreign_key' => 'user_id',
         'relation_id' => 'id',
         'type'        => 'unsignedBigInteger'
+    ],
+    'permissions' => [
+
     ]
 ];

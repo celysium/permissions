@@ -4,7 +4,7 @@ namespace Celysium\Permission;
 
 use Celysium\Permission\Commands\CreatePermission;
 use Celysium\Permission\Commands\CreateRole;
-use Celysium\Permission\Commands\SyncRoutes;
+use Celysium\Permission\Commands\SyncPermission;
 use Celysium\Permission\Middleware\CheckPermission;
 use Celysium\Permission\Middleware\CheckRole;
 use Celysium\Permission\Models\Permission;
@@ -113,7 +113,7 @@ class PermissionServiceProvider extends ServiceProvider
         $this->commands([
             CreatePermission::class,
             CreateRole::class,
-            SyncRoutes::class,
+            SyncPermission::class,
         ]);
     }
 }
