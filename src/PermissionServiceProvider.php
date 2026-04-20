@@ -90,7 +90,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         Gate::define('permission', function ($user, string $permission) {
             /** @var Permissions $user */
-            return $user->hasPermissions($permission);
+            return (bool) count($user->getSubPermissions($permission));
         });
     }
 

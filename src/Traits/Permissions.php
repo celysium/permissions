@@ -236,4 +236,24 @@ trait Permissions
     {
         return (bool)count(array_intersect($names, $this->allowsCachePermissions()));
     }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public function getSubPermissions(string $name): array
+    {
+        $permissions = $this->allowsCachePermissions();
+
+        $allows = [];
+        foreach ($permissions as $permission) {
+            if($permission == $name) {
+                $allows[] = '*';
+            }
+            elseif (str_starts_with($permission, $name)) {
+                $allows[] = str_replace($name . '.', '', $permission);
+            }
+        }
+        return $allows;
+    }
 }
