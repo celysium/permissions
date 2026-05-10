@@ -20,7 +20,7 @@ class CheckRole
      * @return Response|RedirectResponse
      * @throws AuthorizationException
      */
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, $role): Response|RedirectResponse
     {
         if (Gate::allows('role', $role)) {
             return $next($request);

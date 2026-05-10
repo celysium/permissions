@@ -33,7 +33,7 @@ class SyncPermission extends Command
 
             $prepend = $prefix.$key;
             if (is_array($value)) {
-                $this->dot($value, $prepend.'.');
+                $results = array_merge($results, $this->dot($value, $prepend.'.'));
             } else {
                 $results[] = $prepend.$value;
             }

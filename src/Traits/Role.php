@@ -12,39 +12,18 @@ trait Role
     {
         $this->users()->get(['id'])->map(function ($user) {
             /** @var Permissions $user */
-            $key = str_replace('{user}', $user->id, config("permission.cache.key_role_user"));
+            $key = str_replace('{user}', $user->id, config("permission.cache.key_user_roles"));
             Cache::forget($key);
         });
     }
 
     /**
-     * @return array
-     */
-    public function allowPermissions(): array
-    {
-        return static::allowPermissionsByName($this->name);
-    }
-
-    /**
-     * @param string $name
-     * @return array
-     */
-    public static function allowPermissionsByName(string $name): array
-    {
-        $role = RoleModel::with('permissions')->where('name', $name)->first();
-        if(empty($role)){
-            return [];
-        }
-        return $role->permissions()->get(['name'])->pluck('name')->toArray();
-    }
-
-    /**
      * @param bool $refresh
      * @return array
      */
-    public function cachePermissions(bool $refresh = false): array
+    public function getPermissions(bool $refresh = false): array
     {
-        return static::cachePermissionsByName($this->name, $refresh);
+        return static::cachePermissions($this->name, $refresh);
     }
 
     /**
@@ -52,14 +31,28 @@ trait Role
      * @param bool $refresh
      * @return array
      */
-    public static function cachePermissionsByName(string $name, bool $refresh = false): array
+    public static function cachePermissions(string $name, bool $refresh = false): array
     {
-        $key = str_replace('{role}', $name, config("permission.cache.key_role_permission"));
+        $key = str_replace('{role}', $name, config("permission.cache.key_role_permissions"));
         if ($refresh) {
             Cache::forget($key);
         }
         return Cache::store(config('permission.cache.driver'))
-            ->rememberForever($key, fn() => static::allowPermissionsByName($name));
+            ->rememberForever($key, fn() => static::getPermissionsName($name));
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     */
+    public static function getPermissionsName(string $name): array
+    {
+        /** @var RoleModel $role */
+        $role = RoleModel::with('permissions.name')->where('name', $name)->first();
+        if(empty($role)){
+            return [];
+        }
+        return $role->permissions->pluck('name')->toArray();
     }
 
     /**

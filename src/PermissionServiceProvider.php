@@ -117,8 +117,6 @@ class PermissionServiceProvider extends ServiceProvider
     public function registerCommands(): void
     {
         $this->commands([
-            CreatePermission::class,
-            CreateRole::class,
             SyncPermission::class,
         ]);
     }

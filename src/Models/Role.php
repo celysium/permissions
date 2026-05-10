@@ -18,7 +18,9 @@ class Role extends Model
 {
     use \Celysium\Permission\Traits\Role;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name'
+    ];
 
     public $timestamps = false;
 
@@ -35,10 +37,10 @@ class Role extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(
-            config('permission.user.model'),
-            'role_user',
+            config('permission.model.class'),
+            'role_' . config('permission.model.name'),
             'role_id',
-            config('permission.user.foreign_key')
+            config('permission.model.foreign_key')
         );
     }
 }

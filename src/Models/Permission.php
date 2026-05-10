@@ -18,7 +18,6 @@ use Illuminate\Support\Collection;
 class Permission extends Model
 {
     protected $fillable = [
-        'id',
         'name',
     ];
 
@@ -39,29 +38,11 @@ class Permission extends Model
         return explode('.', $this->name);
     }
 
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            config('permission.user.model'),
-            'permission_user',
-            'permission_id',
-            config('permission.user.foreign_key')
-        );
-    }
-
-    public function resetCacheUsers(): void
-    {
-        /** @var Permissions $user */
-        foreach ($this->users as $user) {
-            $user->cachePermissions(true);
-        }
-    }
-
     public function resetCacheRoles(): void
     {
         /** @var Role $role */
         foreach ($this->roles as $role) {
-            $role->cachePermissions(true);
+            $role->getPermissions(true);
         }
     }
 

@@ -20,7 +20,7 @@ class CheckPermission
      * @return Response|RedirectResponse
      * @throws AuthorizationException
      */
-    public function handle(Request $request, Closure $next, $permission)
+    public function handle(Request $request, Closure $next, $permission): Response|RedirectResponse
     {
         if (Gate::allows('permission', $permission)) {
             return $next($request);

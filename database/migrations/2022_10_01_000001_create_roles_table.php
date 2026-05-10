@@ -18,12 +18,13 @@ return new class extends Migration
             $table->string('name')->unique();
         });
 
-        Schema::create('role_user', function (Blueprint $table) {
+        $config = config('permission.model');
+        Schema::create('role_' . $config['name'], function (Blueprint $table) use ($config) {
 
-            $userTable = config('permission.user.table');
-            $userForeignKey = config('permission.user.foreign_key');
-            $userRelationId = config('permission.user.relation_id');
-            $userType = config('permission.user.type');
+            $userType = $config['type'];
+            $userForeignKey = $config['foreign_key'];
+            $userRelationId = $config['relation_id'];
+            $userTable = $config['table'];
 
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');
@@ -42,7 +43,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('role_user');
+        Schema::dropIfExists('role_' . config('permission.model.name'));
         Schema::dropIfExists('roles');
     }
 };
