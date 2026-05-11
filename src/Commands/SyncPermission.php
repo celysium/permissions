@@ -17,7 +17,7 @@ class SyncPermission extends Command
     {
         $permissions = $this->dot(config('permission.permissions'));
         foreach ($permissions as $name) {
-            $permission = Permission::query()->createOrFirst([
+            $permission = Permission::query()->firstOrCreate([
                 "name" => $name
             ]);
 
@@ -31,11 +31,10 @@ class SyncPermission extends Command
 
         foreach ($permissions as $key => $value) {
 
-            $prepend = $prefix.$key;
             if (is_array($value)) {
-                $results = array_merge($results, $this->dot($value, $prepend.'.'));
+                $results = array_merge($results, $this->dot($value, $prefix.$key.'.'));
             } else {
-                $results[] = $prepend.$value;
+                $results[] = $prefix.$value;
             }
         }
 
