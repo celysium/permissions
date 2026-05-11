@@ -134,10 +134,9 @@ trait Permissions
     }
 
     /**
-     * @param bool $refresh
      * @return array
      */
-    protected function getPermissionsNameAttribute(bool $refresh = false): array
+    protected function getPermissionsNameAttribute(): array
     {
         return $this->getPermissionsName();
     }
