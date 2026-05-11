@@ -137,6 +137,15 @@ trait Permissions
      * @param bool $refresh
      * @return array
      */
+    protected function getPermissionsNameAttribute(bool $refresh = false): array
+    {
+        return $this->getPermissionsName();
+    }
+
+    /**
+     * @param bool $refresh
+     * @return array
+     */
     protected function getPermissionsName(bool $refresh = false): array
     {
         $key = str_replace('{user}', $this->id, config("permission.cache.key_user_permissions"));
