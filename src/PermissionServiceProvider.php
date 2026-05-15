@@ -83,18 +83,12 @@ class PermissionServiceProvider extends ServiceProvider
 
     protected function registerGates(): void
     {
-        Gate::define('role', function ($user, string $role, callable $callback = null) {
-            if ($callback) {
-                $callback($user, $role);
-            }
+        Gate::define('role', function ($user, string $role) {
             /** @var Permissions $user */
             return $user->hasRoles($role);
         });
 
-        Gate::define('permission', function ($user, string $permission, callable $callback = null) {
-            if ($callback) {
-                $callback($user, $permission);
-            }
+        Gate::define('permission', function ($user, string $permission) {
             /** @var Permissions $user */
             return (bool) count($user->getSubPermissions($permission));
         });
