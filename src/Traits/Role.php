@@ -48,7 +48,7 @@ trait Role
     public static function getPermissionsName(string $name): array
     {
         /** @var RoleModel $role */
-        $role = RoleModel::with('permissions.name')->where('name', $name)->first();
+        $role = RoleModel::with('permissions')->where('name', $name)->first();
         if(empty($role)){
             return [];
         }
