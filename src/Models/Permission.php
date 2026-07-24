@@ -12,8 +12,7 @@ use Illuminate\Support\Collection;
  * @property integer $id
  * @property string $name
  * @property array $namespaces
- * @property Collection $roles
- * @property Collection $users
+ * @property-read  Collection<Role> $roles
  */
 class Permission extends Model
 {
@@ -31,39 +30,5 @@ class Permission extends Model
             'permission_id',
             'role_id'
         );
-    }
-
-    public function getNamespacesAttribute(): array
-    {
-        return explode('.', $this->name);
-    }
-
-    public function resetCacheRoles(): void
-    {
-        /** @var Role $role */
-        foreach ($this->roles as $role) {
-            $role->getPermissions(true);
-        }
-    }
-
-    /**
-     * @param array $names
-     * @param bool $throw
-     * @return array
-     */
-    public static function getIds(array $names, bool $throw = true): array
-    {
-        $items = static::query()
-            ->whereIn('name', $names)
-            ->select(['id', 'name'])
-            ->pluck('id', 'name')
-            ->toArray();
-
-        if (count($items) === count($names) || !$throw) {
-            return array_values($items);
-        }
-
-        $notExists = array_diff($names, array_keys($items));
-        throw new ModelNotFoundException('Not found permission name ' . implode(', ', $notExists));
     }
 }

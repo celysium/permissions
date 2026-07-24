@@ -6,24 +6,26 @@ use Celysium\Permission\Models\Role as RoleModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * @property-read array $permissions_name
+ */
 trait Role
 {
-    public function resetCacheUsers(): void
+    /**
+     * @return array
+     */
+    public function getPermissionsNameAttribute(): array
     {
-        $this->users()->get(['id'])->map(function ($user) {
-            /** @var Permissions $user */
-            $key = str_replace('{user}', $user->id, config("permission.cache.key_user_roles"));
-            Cache::forget($key);
-        });
+        return static::cachePermissionsName($this->name);
     }
 
     /**
      * @param bool $refresh
      * @return array
      */
-    public function getPermissions(bool $refresh = false): array
+    public function getPermissionsName(bool $refresh = false): array
     {
-        return static::cachePermissions($this->name, $refresh);
+        return static::cachePermissionsName($this->name, $refresh);
     }
 
     /**
@@ -31,21 +33,21 @@ trait Role
      * @param bool $refresh
      * @return array
      */
-    public static function cachePermissions(string $name, bool $refresh = false): array
+    public static function cachePermissionsName(string $name, bool $refresh = false): array
     {
         $key = str_replace('{role}', $name, config("permission.cache.key_role_permissions"));
         if ($refresh) {
-            Cache::forget($key);
+            Cache::store(config('permission.cache.driver'))->forget($key);
         }
         return Cache::store(config('permission.cache.driver'))
-            ->rememberForever($key, fn() => static::getPermissionsName($name));
+            ->remember($key, config('permission.cache.lifetime'), fn() => static::permissionsName($name));
     }
 
     /**
      * @param string $name
      * @return array
      */
-    public static function getPermissionsName(string $name): array
+    public static function permissionsName(string $name): array
     {
         /** @var RoleModel $role */
         $role = RoleModel::with('permissions')->where('name', $name)->first();

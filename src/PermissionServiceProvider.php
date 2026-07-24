@@ -31,15 +31,8 @@ class PermissionServiceProvider extends ServiceProvider
         $this->registerMiddlewares();
 
         $this->registerGates();
-    }
 
-    public function register(): void
-    {
         $this->registerConfig();
-
-        $this->registerObservers();
-
-        $this->registerRepositories();
 
         $this->registerCommands();
     }
@@ -87,14 +80,6 @@ class PermissionServiceProvider extends ServiceProvider
         Gate::define('permission', function ($user, string $permission) {
             /** @var Permissions $user */
             return (bool) count($user->getSubPermissions($permission));
-        });
-    }
-
-    public function registerObservers(): void
-    {
-        $this->booting(function () {
-            Permission::observe([PermissionObserver::class]);
-            Role::observe([RoleObserver::class]);
         });
     }
 

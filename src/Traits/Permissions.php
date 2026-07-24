@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * @property integer $id
- * @property Collection $roles
- * @property Collection $permissions
  * @property array $roles_name
  * @property array $permissions_name
+ * @property-read  Collection<Role> $roles
+ * @property-read  Collection<Permission> $permissions
  */
 trait Permissions
 {
@@ -128,7 +128,7 @@ trait Permissions
     {
         $permissions = [];
         foreach ($this->cacheRolesName() as $role) {
-            $permissions = array_merge($permissions, Role::cachePermissions($role));
+            $permissions = array_merge($permissions, Role::cachePermissionsName($role));
         }
         return $permissions;
     }
