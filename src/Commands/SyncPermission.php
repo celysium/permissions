@@ -21,7 +21,9 @@ class SyncPermission extends Command
                 "name" => $name
             ]);
 
-            $this->info("Permission `{$name}` " . ($permission->wasRecentlyCreated ? 'created' : 'already exists'));
+            if($permission->wasRecentlyCreated) {
+                $this->info("Permission `{$name}` created");
+            }
         }
     }
 

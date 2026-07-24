@@ -11,10 +11,6 @@ use Celysium\Permission\Models\Permission;
 use Celysium\Permission\Models\Role;
 use Celysium\Permission\Observers\PermissionObserver;
 use Celysium\Permission\Observers\RoleObserver;
-use Celysium\Permission\Repositories\Permission\PermissionRepository;
-use Celysium\Permission\Repositories\Permission\PermissionRepositoryInterface;
-use Celysium\Permission\Repositories\Role\RoleRepository;
-use Celysium\Permission\Repositories\Role\RoleRepositoryInterface;
 use Celysium\Permission\Traits\Permissions;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\Router;
@@ -100,12 +96,6 @@ class PermissionServiceProvider extends ServiceProvider
             Permission::observe([PermissionObserver::class]);
             Role::observe([RoleObserver::class]);
         });
-    }
-
-    public function registerRepositories(): void
-    {
-        $this->app->bind(RoleRepositoryInterface::class, RoleRepository::class);
-        $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
     }
 
     public function registerCommands(): void
