@@ -95,7 +95,7 @@ trait Permissions
     {
         $key = str_replace('{user}', $this->id, config("permission.cache.key_user_roles"));
         if ($refresh) {
-            Cache::forget($key);
+            Cache::store(config('permission.cache.driver'))->forget($key);
         }
         return Cache::store(config('permission.cache.driver'))
             ->remember($key, config('permission.cache.lifetime'), fn() => $this->getRolesName());
@@ -149,7 +149,7 @@ trait Permissions
     {
         $key = str_replace('{user}', $this->id, config("permission.cache.key_user_permissions"));
         if ($refresh) {
-            Cache::forget($key);
+            Cache::store(config('permission.cache.driver'))->forget($key);
         }
         return Cache::store(config('permission.cache.driver'))
             ->remember($key, config('permission.cache.lifetime'), fn() => $this->getCachePermissions());
